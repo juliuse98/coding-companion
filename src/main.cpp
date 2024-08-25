@@ -1,3 +1,6 @@
+#include "sprite.h"
+#include "texture.h"
+#include "texture_loader.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <chrono>
@@ -135,6 +138,21 @@ void makeWindowTransparentAndClickThrough(GLFWwindow* window) {
 }
 #endif
 
+void updateUV(float array[], SpriteUVRect rect)
+{
+    array[3] = rect.u;
+    array[4] = rect.v + rect.height;
+
+    array[8] = rect.u + rect.width;
+    array[9] = rect.v + rect.height;
+
+    array[13] = rect.u;
+    array[14] = rect.v;
+
+    array[18] = rect.u + rect.width;
+    array[19] = rect.v;
+}
+
 int main(int argc, char *argv[]) {
     std::cout << "Start Init" << std::endl;
     if (!glfwInit()){
@@ -174,29 +192,11 @@ int main(int argc, char *argv[]) {
 	(float)(mode->width)         , (float)(mode->height) - 100.0f, 0.0f, 1.0f, 1.0f, // top right
 	(float)(mode->width) - 100.0f, (float)(mode->height)         , 0.0f, 0.0f, 0.0f, // bottom left
 	(float)(mode->width)         , (float)(mode->height)         , 0.0f, 1.0f, 0.0f,  // bottom right
-
-
-	0.0f                         , 0.0                           , 0.0f, 1.0f, 0.0f,  // bottom right
-	0.0f                         , 50.0f                         , 0.0f, 1.0f, 0.0f,  // bottom right
-	50.0f                        , 0.0f                          , 0.0f, 1.0f, 0.0f,  // bottom right
-
-
-	(float)(mode->width)         , 0.0f                          , 0.0f, 1.0f, 0.0f,  // bottom right
-	(float)(mode->width) -50.0f  , 0.0f                          , 0.0f, 1.0f, 0.0f,  // bottom right
-	(float)(mode->width)         , 50.0f                         , 0.0f, 1.0f, 0.0f,  // bottom right
-
-
-	0.0f         , (float)(mode->height)         , 0.0f, 1.0f, 0.0f,  // bottom right
-	50.0f         , (float)(mode->height)         , 0.0f, 1.0f, 0.0f,  // bottom right
-	0.0f         , (float)(mode->height) - 50.0f         , 0.0f, 1.0f, 0.0f  // bottom right
     };
 
     unsigned int indices[] = {
         0,2,1,
-        1,2,3,
-        4,5,6,
-        7,8,9,
-        10,11,12
+        1,2,3
     };
 
     unsigned int VBO;
@@ -281,49 +281,60 @@ int main(int argc, char *argv[]) {
     // 2. use our shader program when we want to render an object
     glUseProgram(shaderProgram);
     // 3. now draw the object 
-    stbi_set_flip_vertically_on_load(true);
-    int width, height, nrChannels;
-    unsigned char* data = stbi_load("test.jpg", &width, &height, &nrChannels, 0);
-    if(data)
-    {
 
-    }
-    else
-    {
-        std::cout << "COULD NOT LOAD test.jpg" << "hello" << std::endl;
-        return 1;
-    }
-    std::cout << success << "hello" << std::endl;
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glActiveTexture(GL_TEXTURE0);
+    stbi_set_flip_vertically_on_load(true);
+    Texture* texture = TextureLoader::load("test.png");
+    SpriteSheet spriteSheet = SpriteSheet(texture);
+    spriteSheet.addSpriteUVRect(0.0f, 0.66f, 0.33f, 0.33f);
+    spriteSheet.addSpriteUVRect(0.33f, 0.66f, 0.33f, 0.33f);
+    spriteSheet.addSpriteUVRect(0.66f, 0.66f, 0.33f, 0.33f);
+    spriteSheet.addSpriteUVRect(0.0f, 0.33f, 0.33f, 0.33f);
+    spriteSheet.addSpriteUVRect(0.33f, 0.33f, 0.33f, 0.33f);
+    spriteSheet.addSpriteUVRect(0.66f, 0.33f, 0.33f, 0.33f);
+    spriteSheet.addSpriteUVRect(0.0f, 0.0f, 0.33f, 0.33f);
+    spriteSheet.addSpriteUVRect(0.33f, 0.0f, 0.33f, 0.33f);
+
     glm::mat4 projection = glm::ortho(0.0f,(float)(mode->width), (float)(mode->height), 0.0f, -1.0f,1.0f);
 
     glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
     int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    stbi_image_free(data);
+    texture->bind();
     std::cout << glGetError() << std::endl;
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
+
     const int target_fps = 60;
     const std::chrono::milliseconds target_frame_duration(1000 / target_fps);
-
+    int spriteId = 0;
+    auto lastTime = std::chrono::high_resolution_clock::now();
     while(!glfwWindowShouldClose(window)){
         auto frame_start = std::chrono::high_resolution_clock::now();
 	glClear(GL_COLOR_BUFFER_BIT);
         glPolygonMode(GL_FRONT, GL_FILL);
         glPolygonMode(GL_BACK, GL_LINE);
 
-        glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
+        updateUV(vertices, spriteSheet.getSpriteUVRect(spriteId));
+        glBufferSubData(GL_ARRAY_BUFFER,0,sizeof(vertices),vertices);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        std::chrono::duration<float> elapsedTime = std::chrono::high_resolution_clock::now() - lastTime;
+
+        if(elapsedTime.count() >= 0.2f)
+        {
+            spriteId++;
+            if(spriteId > 7)
+            {
+                spriteId = 0;
+            }
+            std::cout << spriteId << std::endl;
+            lastTime = std::chrono::high_resolution_clock::now();
+        }
+
 	glfwSwapBuffers(window);
         glfwPollEvents();
         auto frame_end = std::chrono::high_resolution_clock::now();

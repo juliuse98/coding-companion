@@ -8,6 +8,14 @@ set(CMAKE_CXX_STANDARD 14)
 set(SOURCE_FILES 
 	src/main.cpp
 	src/environment.cpp
+	src/sprite.cpp
+	src/texture.cpp
+	src/texture_loader.cpp
+
+	include/environment.h
+	include/sprite.h
+	include/texture.h
+	include/texture_loader.h
 )
 
 include_directories(include/ deps/glfw/include deps/windows/glew/include deps/glm/ deps/stb/ ${BOOST_INCLUDE_DIRS})
