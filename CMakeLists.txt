@@ -11,11 +11,24 @@ set(SOURCE_FILES
 	src/sprite.cpp
 	src/texture.cpp
 	src/texture_loader.cpp
+	src/shader.cpp
+	src/renderer.cpp
+	src/index_buffer.cpp
+	src/vertex_buffer.cpp
+	src/vertex_array.cpp
 
 	include/environment.h
 	include/sprite.h
 	include/texture.h
 	include/texture_loader.h
+	include/shader.h
+	include/renderer.h
+	include/index_buffer.h
+	include/vertex_buffer.h
+	include/vertex_array.h
+	include/vertex.h
+	include/transform.h
+	include/vertex_buffer_layout.h
 )
 
 include_directories(include/ deps/glfw/include deps/windows/glew/include deps/glm/ deps/stb/ ${BOOST_INCLUDE_DIRS})
