@@ -1,6 +1,6 @@
-#include "VertexBuffer.h"
+#include "vertex_buffer.h"
 
-#include "Renderer.h"
+#include "renderer.h"
 
 namespace cabbage {
 		VertexBuffer::VertexBuffer(const void* data, unsigned int size, int GlDrawType)

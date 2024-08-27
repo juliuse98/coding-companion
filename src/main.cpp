@@ -1,6 +1,12 @@
+#include "index_buffer.h"
+#include "shader.h"
 #include "sprite.h"
 #include "texture.h"
 #include "texture_loader.h"
+#include "vertex_array.h"
+#include "vertex_buffer.h"
+#include "vertex.h"
+#include "vertex_buffer_layout.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <chrono>
@@ -138,19 +144,19 @@ void makeWindowTransparentAndClickThrough(GLFWwindow* window) {
 }
 #endif
 
-void updateUV(float array[], SpriteUVRect rect)
+void updateUV(cabbage::Vertex vertices[], cabbage::SpriteUVRect rect)
 {
-    array[3] = rect.u;
-    array[4] = rect.v + rect.height;
+    vertices[3].uvCoordinate.u = rect.u;
+    vertices[4].uvCoordinate.v = rect.v + rect.height;
 
-    array[8] = rect.u + rect.width;
-    array[9] = rect.v + rect.height;
+    vertices[8].uvCoordinate.u = rect.u + rect.width;
+    vertices[9].uvCoordinate.v = rect.v + rect.height;
 
-    array[13] = rect.u;
-    array[14] = rect.v;
+    vertices[13].uvCoordinate.u = rect.u;
+    vertices[14].uvCoordinate.v = rect.v;
 
-    array[18] = rect.u + rect.width;
-    array[19] = rect.v;
+    vertices[18].uvCoordinate.u = rect.u + rect.width;
+    vertices[19].uvCoordinate.v = rect.v;
 }
 
 int main(int argc, char *argv[]) {
@@ -159,15 +165,16 @@ int main(int argc, char *argv[]) {
 	std::cout << "GLFW init failed!" << std::endl;
     }
     std::cout << "Init Complete" << std::endl;
-    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
-    glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE);
-    glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
-    glfwWindowHint(GLFW_FOCUSED, GLFW_FALSE);
-    glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_FALSE);
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 2);
+    glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 0);
+
+    glfwWindowHint( GLFW_DECORATED,                 GLFW_FALSE);
+    glfwWindowHint( GLFW_TRANSPARENT_FRAMEBUFFER,   GLFW_TRUE);
+    glfwWindowHint( GLFW_MAXIMIZED,                 GLFW_FALSE);
+    glfwWindowHint( GLFW_FLOATING,                  GLFW_TRUE);
+    glfwWindowHint( GLFW_FOCUSED,                   GLFW_FALSE);
+    glfwWindowHint( GLFW_FOCUS_ON_SHOW,             GLFW_FALSE);
 
     std::cout << "Create Window" << std::endl;
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -187,12 +194,6 @@ int main(int argc, char *argv[]) {
     std::cout << "Init GLEW Complete" << std::endl;
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-    float vertices[] = {
-	(float)(mode->width) - 100.0f, (float)(mode->height) - 100.0f, 0.0f, 0.0f, 1.0f, // top left
-	(float)(mode->width)         , (float)(mode->height) - 100.0f, 0.0f, 1.0f, 1.0f, // top right
-	(float)(mode->width) - 100.0f, (float)(mode->height)         , 0.0f, 0.0f, 0.0f, // bottom left
-	(float)(mode->width)         , (float)(mode->height)         , 0.0f, 1.0f, 0.0f,  // bottom right
-    };
 
     unsigned int indices[] = {
         0,2,1,
@@ -202,75 +203,27 @@ int main(int argc, char *argv[]) {
     unsigned int VBO;
     glGenBuffers(1,&VBO);
     unsigned int VAO;
-    std::cout << "TEST1" << std::endl;
-    const char* vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "layout (location = 1) in vec2 texCoords;\n"
-    "uniform mat4 projection;\n"
-    "out vec2 TexCoords;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = projection * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "   TexCoords = texCoords;\n"
-    "}\0";
-    unsigned int vertexShader;
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    cabbage::Shader spriteShader("res/sprite.shader");
+    spriteShader.Bind();
 
-    if(!success)
-    {
-        glGetShaderInfoLog(vertexShader,512,NULL,infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    const char* fragmentShaderSource = "#version 330 core\n"
-        "in vec2 TexCoords;\n"
-        "out vec4 FragColor;\n"
-        "uniform sampler2D ourTexture;\n"
-        "void main()\n"
-        "{\n"
-        "  FragColor = vec4(1.0f,0.5f,0.2f,1.0f);\n"
-        "  FragColor = texture(ourTexture, TexCoords);\n"
-        "}\n";
-    unsigned int fragmentShader;
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    std::cout << success << "hello" << std::endl;
-    if(!success) {
-        glGetShaderInfoLog(fragmentShader,512,NULL,infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    unsigned int shaderProgram;
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if(!success) {
-        glGetProgramInfoLog(shaderProgram,512,NULL,infoLog);
-        std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    glUseProgram(shaderProgram);
-
-    
     glGenVertexArrays(1, &VAO); 
     glBindVertexArray(VAO);
 
-    std::cout << success << "hello" << std::endl;
-    unsigned int EBO;
-    glGenBuffers(1,&EBO);
+    cabbage::IndexBuffer ibo(indices,6);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    cabbage::Vertex vertices[] = {
+        cabbage::Vertex(glm::vec3((float)(mode->width) - 100.0f, (float)(mode->height) - 100.0f, 0.0f), cabbage::UVCoordinate(0.0f,1.0f)), // top left
+        cabbage::Vertex(glm::vec3((float)(mode->width)         , (float)(mode->height) - 100.0f, 0.0f), cabbage::UVCoordinate(1.0f,1.0f)), // top right
+        cabbage::Vertex(glm::vec3((float)(mode->width) - 100.0f, (float)(mode->height)         , 0.0f), cabbage::UVCoordinate(0.0f,0.0f)), // bottom left
+        cabbage::Vertex(glm::vec3((float)(mode->width)         , (float)(mode->height)         , 0.0f), cabbage::UVCoordinate(1.0f,0.0f)), // bottom right
+    };
 
-    // 0. copy our vertices array in a buffer for OpenGL to use
+    cabbage::VertexBufferLayout layout;
+    layout.Push<float>(3);
+    layout.Push<float>(2);
+    cabbage::VertexBuffer vbo(vertices,sizeof(cabbage::Vertex) * 4);
+    cabbage::VertexArray vao;
+    vao.AddBuffer(vbo, layout);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     // 1. then set the vertex attributes pointers
@@ -278,13 +231,10 @@ int main(int argc, char *argv[]) {
     glEnableVertexAttribArray(0);  
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);  
-    // 2. use our shader program when we want to render an object
-    glUseProgram(shaderProgram);
-    // 3. now draw the object 
 
     stbi_set_flip_vertically_on_load(true);
-    Texture* texture = TextureLoader::load("test.png");
-    SpriteSheet spriteSheet = SpriteSheet(texture);
+    cabbage::Texture* texture = cabbage::TextureLoader::load("test.png");
+    cabbage::SpriteSheet spriteSheet = cabbage::SpriteSheet(texture);
     spriteSheet.addSpriteUVRect(0.0f, 0.66f, 0.33f, 0.33f);
     spriteSheet.addSpriteUVRect(0.33f, 0.66f, 0.33f, 0.33f);
     spriteSheet.addSpriteUVRect(0.66f, 0.66f, 0.33f, 0.33f);
@@ -296,16 +246,13 @@ int main(int argc, char *argv[]) {
 
     glm::mat4 projection = glm::ortho(0.0f,(float)(mode->width), (float)(mode->height), 0.0f, -1.0f,1.0f);
 
-    glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
-    int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+    spriteShader.SetUniform1i("ourTexture", 0);
+    spriteShader.SetUniformMat4f("projection", projection);
     texture->bind();
-    std::cout << glGetError() << std::endl;
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-
 
     const int target_fps = 60;
     const std::chrono::milliseconds target_frame_duration(1000 / target_fps);
@@ -317,7 +264,7 @@ int main(int argc, char *argv[]) {
         glPolygonMode(GL_FRONT, GL_FILL);
         glPolygonMode(GL_BACK, GL_LINE);
 
-        glBindVertexArray(VAO);
+        vao.Bind();
         updateUV(vertices, spriteSheet.getSpriteUVRect(spriteId));
         glBufferSubData(GL_ARRAY_BUFFER,0,sizeof(vertices),vertices);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

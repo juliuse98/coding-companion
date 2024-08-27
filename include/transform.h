@@ -2,7 +2,7 @@
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace timothy{
+namespace cabbage{
     struct Transform
     {
         glm::vec3 Position;

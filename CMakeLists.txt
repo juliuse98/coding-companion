@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
 project(Coding-Companion)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCE_FILES 
 	src/main.cpp
@@ -16,6 +16,7 @@ set(SOURCE_FILES
 	src/index_buffer.cpp
 	src/vertex_buffer.cpp
 	src/vertex_array.cpp
+	src/vertex_buffer_layout.cpp
 
 	include/environment.h
 	include/sprite.h
@@ -31,7 +32,7 @@ set(SOURCE_FILES
 	include/vertex_buffer_layout.h
 )
 
-include_directories(include/ deps/glfw/include deps/windows/glew/include deps/glm/ deps/stb/ ${BOOST_INCLUDE_DIRS})
+include_directories(include/ deps/ deps/glfw/include deps/windows/glew/include deps/glm/ deps/stb/ ${BOOST_INCLUDE_DIRS})
 
 # Add executable target with source files listed in SOURCE_FILES variable
 add_executable(codingCompanion ${SOURCE_FILES})

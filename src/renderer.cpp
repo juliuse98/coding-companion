@@ -1,4 +1,4 @@
-#include "Renderer.h"
+#include "renderer.h"
 #include <iostream>
 
 void GLClearError()
@@ -16,7 +16,7 @@ bool GLLogCall(const char* function, const char* file, int line)
     return true;
 }
 
-namespace timothy 
+namespace cabbage 
 {
     Renderer::Renderer()
     : m_ClearColor(glm::vec4(200/255.0f, 230/255.0f, 240/255.0f, 1.0f))

@@ -3,9 +3,9 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include "VertexArray.h"
-#include "IndexBuffer.h"
-#include "Shader.h"
+#include "vertex_array.h"
+#include "index_buffer.h"
+#include "shader.h"
 
 #define ASSERT(x) if(!(x)) __debugbreak();
 
@@ -20,7 +20,7 @@ void GLClearError();
 
 bool GLLogCall(const char* function, const char* file, int line);
 
-namespace timothy 
+namespace cabbage 
 {
 	class Renderer
 	{

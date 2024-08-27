@@ -2,8 +2,12 @@
 
 #include "texture.h"
 
-class TextureLoader {
-public:
-	static Texture* load(char const* filename);
-	
-};
+namespace cabbage {
+
+	class TextureLoader {
+	public:
+		static Texture* load(char const* filename);
+		
+	};
+
+}

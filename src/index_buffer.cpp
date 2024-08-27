@@ -1,6 +1,6 @@
-#include "IndexBuffer.h"
+#include "index_buffer.h"
 
-#include "Renderer.h"
+#include "renderer.h"
 namespace cabbage {
 		IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count)
 		{

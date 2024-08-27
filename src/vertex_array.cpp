@@ -1,10 +1,10 @@
-#include "VertexArray.h"
+#include "vertex_array.h"
 
-#include "Renderer.h"
-#include "VertexBufferLayout.h"
-#include <iostream>
+#include "renderer.h"
+#include "vertex_buffer_layout.h"
 
 namespace cabbage {
+
 	VertexArray::VertexArray() : m_lastAttribArrayId(0)
 	{
 		GLCall(glGenVertexArrays(1, &m_RendererId));
@@ -40,4 +40,5 @@ namespace cabbage {
 	{
 		GLCall(glBindVertexArray(0));
 	}
+
 }
