@@ -146,17 +146,17 @@ void makeWindowTransparentAndClickThrough(GLFWwindow* window) {
 
 void updateUV(cabbage::Vertex vertices[], cabbage::SpriteUVRect rect)
 {
-    vertices[3].uvCoordinate.u = rect.u;
-    vertices[4].uvCoordinate.v = rect.v + rect.height;
+    vertices[0].uvCoordinate.u = rect.u;
+    vertices[0].uvCoordinate.v = rect.v + rect.height;
 
-    vertices[8].uvCoordinate.u = rect.u + rect.width;
-    vertices[9].uvCoordinate.v = rect.v + rect.height;
+    vertices[1].uvCoordinate.u = rect.u + rect.width;
+    vertices[1].uvCoordinate.v = rect.v + rect.height;
 
-    vertices[13].uvCoordinate.u = rect.u;
-    vertices[14].uvCoordinate.v = rect.v;
+    vertices[2].uvCoordinate.u = rect.u;
+    vertices[2].uvCoordinate.v = rect.v;
 
-    vertices[18].uvCoordinate.u = rect.u + rect.width;
-    vertices[19].uvCoordinate.v = rect.v;
+    vertices[3].uvCoordinate.u = rect.u + rect.width;
+    vertices[3].uvCoordinate.v = rect.v;
 }
 
 int main(int argc, char *argv[]) {
@@ -200,14 +200,8 @@ int main(int argc, char *argv[]) {
         1,2,3
     };
 
-    unsigned int VBO;
-    glGenBuffers(1,&VBO);
-    unsigned int VAO;
     cabbage::Shader spriteShader("res/sprite.shader");
     spriteShader.Bind();
-
-    glGenVertexArrays(1, &VAO); 
-    glBindVertexArray(VAO);
 
     cabbage::IndexBuffer ibo(indices,6);
 
@@ -224,13 +218,6 @@ int main(int argc, char *argv[]) {
     cabbage::VertexBuffer vbo(vertices,sizeof(cabbage::Vertex) * 4);
     cabbage::VertexArray vao;
     vao.AddBuffer(vbo, layout);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    // 1. then set the vertex attributes pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);  
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);  
 
     stbi_set_flip_vertically_on_load(true);
     cabbage::Texture* texture = cabbage::TextureLoader::load("test.png");
@@ -265,8 +252,11 @@ int main(int argc, char *argv[]) {
         glPolygonMode(GL_BACK, GL_LINE);
 
         vao.Bind();
+        ibo.Bind();
+        spriteShader.Bind();
         updateUV(vertices, spriteSheet.getSpriteUVRect(spriteId));
-        glBufferSubData(GL_ARRAY_BUFFER,0,sizeof(vertices),vertices);
+        vbo.SetData(0, sizeof(vertices), vertices);
+        //glBufferSubData(GL_ARRAY_BUFFER,0,sizeof(vertices),vertices);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         std::chrono::duration<float> elapsedTime = std::chrono::high_resolution_clock::now() - lastTime;
