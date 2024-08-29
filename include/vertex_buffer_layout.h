@@ -39,7 +39,6 @@ namespace cabbage {
 		inline unsigned int GetStride() const { return m_Stride; }
 	};
 
-	// Specializations are declared but not defined here.
 	template<>
 	void VertexBufferLayout::Push<float>(unsigned int count);
 

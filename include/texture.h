@@ -5,6 +5,7 @@ namespace cabbage {
 	struct Texture {
 	public:
 		Texture(int width, int height, int nrChannels, unsigned char* data);
+		~Texture();
 		void bind();
 		void unbind();
 

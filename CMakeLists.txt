@@ -17,6 +17,8 @@ set(SOURCE_FILES
 	src/vertex_buffer.cpp
 	src/vertex_array.cpp
 	src/vertex_buffer_layout.cpp
+	src/ccobject.cpp
+	src/window.cpp
 
 	include/environment.h
 	include/sprite.h
@@ -30,6 +32,8 @@ set(SOURCE_FILES
 	include/vertex.h
 	include/transform.h
 	include/vertex_buffer_layout.h
+	include/ccobject.h
+	include/window.h
 )
 
 include_directories(include/ deps/ deps/glfw/include deps/windows/glew/include deps/glm/ deps/stb/ ${BOOST_INCLUDE_DIRS})
@@ -42,6 +46,9 @@ add_compile_definitions(GLEW_STATIC)
 if(UNIX)
 	message("Configuring for UNIX")
 
+	set(CMAKE_C_COMPILER gcc-9)
+	set(CMAKE_CXX_COMPILER g++-9)
+
 	set(GLFW_UNIX_DEPENDENCIES dl pthread)
 
 	find_file(OpenGL REQUIRED)
@@ -49,6 +56,7 @@ if(UNIX)
 	target_link_libraries(codingCompanion
 		GL
 		dl
+		${GLFW_UNIX_DEPENDENCIES}
 		${CMAKE_CURRENT_SOURCE_DIR}/deps/glew/libGLEW.a
 		${CMAKE_CURRENT_SOURCE_DIR}/deps/glfw/libglfw3.a
 		${BOOST_LIBRARIES}

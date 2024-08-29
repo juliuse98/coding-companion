@@ -1,4 +1,5 @@
 #include "index_buffer.h"
+#include "ccobject.h"
 #include "shader.h"
 #include "sprite.h"
 #include "texture.h"
@@ -7,6 +8,7 @@
 #include "vertex_buffer.h"
 #include "vertex.h"
 #include "vertex_buffer_layout.h"
+#include "window.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <chrono>
@@ -144,19 +146,19 @@ void makeWindowTransparentAndClickThrough(GLFWwindow* window) {
 }
 #endif
 
-void updateUV(cabbage::Vertex vertices[], cabbage::SpriteUVRect rect)
+void updateUV(cabbage::UVCoordinate vertices[], cabbage::SpriteUVRect rect)
 {
-    vertices[0].uvCoordinate.u = rect.u;
-    vertices[0].uvCoordinate.v = rect.v + rect.height;
+    vertices[0].u = rect.u;
+    vertices[0].v = rect.v + rect.height;
 
-    vertices[1].uvCoordinate.u = rect.u + rect.width;
-    vertices[1].uvCoordinate.v = rect.v + rect.height;
+    vertices[1].u = rect.u + rect.width;
+    vertices[1].v = rect.v + rect.height;
 
-    vertices[2].uvCoordinate.u = rect.u;
-    vertices[2].uvCoordinate.v = rect.v;
+    vertices[2].u = rect.u;
+    vertices[2].v = rect.v;
 
-    vertices[3].uvCoordinate.u = rect.u + rect.width;
-    vertices[3].uvCoordinate.v = rect.v;
+    vertices[3].u = rect.u + rect.width;
+    vertices[3].v = rect.v;
 }
 
 int main(int argc, char *argv[]) {
@@ -166,33 +168,50 @@ int main(int argc, char *argv[]) {
     }
     std::cout << "Init Complete" << std::endl;
 
-    glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 0);
-
-    glfwWindowHint( GLFW_DECORATED,                 GLFW_FALSE);
-    glfwWindowHint( GLFW_TRANSPARENT_FRAMEBUFFER,   GLFW_TRUE);
-    glfwWindowHint( GLFW_MAXIMIZED,                 GLFW_FALSE);
-    glfwWindowHint( GLFW_FLOATING,                  GLFW_TRUE);
-    glfwWindowHint( GLFW_FOCUSED,                   GLFW_FALSE);
-    glfwWindowHint( GLFW_FOCUS_ON_SHOW,             GLFW_FALSE);
 
     std::cout << "Create Window" << std::endl;
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    cabbage::Window cwindow;
+    cwindow.setWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 2);
+    cwindow.setWindowHint( GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    GLFWwindow* window = glfwCreateWindow(mode->width - 1, mode->height - 1, "Coding Companion", NULL, NULL);
-    if(!window){
+    cwindow.setWindowHint( GLFW_DECORATED,                 GLFW_FALSE);
+    cwindow.setWindowHint( GLFW_TRANSPARENT_FRAMEBUFFER,   GLFW_TRUE);
+    cwindow.setWindowHint( GLFW_MAXIMIZED,                 GLFW_FALSE);
+    cwindow.setWindowHint( GLFW_FLOATING,                  GLFW_TRUE);
+    cwindow.setWindowHint( GLFW_FOCUSED,                   GLFW_FALSE);
+    cwindow.setWindowHint( GLFW_FOCUS_ON_SHOW,             GLFW_FALSE);
+    std::string windowTitle = "Coding Companion";
+    if(!cwindow.init(mode->width - 1, mode->height - 1, windowTitle)){
         std::cout << "GLFW cannot open window!" << std::endl;
     }
-    glfwSetWindowPos(window, 0, 0);
-    glfwMakeContextCurrent(window);
+    cwindow.setPosition(0, 0);
+
     std::cout << "Init GLEW" << std::endl;
     glewInit();
    
-    makeWindowTransparentAndClickThrough(window);
+    makeWindowTransparentAndClickThrough(cwindow.GetGLFWwindow());
 
     std::cout << "Init GLEW Complete" << std::endl;
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+
+    std::vector<cabbage::Texture> textures;
+    
+    cabbage::Texture* texture1 = cabbage::TextureLoader::load("test.png");
+    textures.push_back(*texture1);
+    delete(texture1);
+    cabbage::Sprite catSprite(&textures[0]);
+    
+   coco::CCObject obj;
+    obj.SetSprite(&catSprite);
+    //SpriteRenderer r(w);
+    //Scene s;
+    //s.rootObj.addChild(obj);
+    //r.draw(s);
+    //
+
 
 
     unsigned int indices[] = {
@@ -205,19 +224,28 @@ int main(int argc, char *argv[]) {
 
     cabbage::IndexBuffer ibo(indices,6);
 
-    cabbage::Vertex vertices[] = {
-        cabbage::Vertex(glm::vec3((float)(mode->width) - 100.0f, (float)(mode->height) - 100.0f, 0.0f), cabbage::UVCoordinate(0.0f,1.0f)), // top left
-        cabbage::Vertex(glm::vec3((float)(mode->width)         , (float)(mode->height) - 100.0f, 0.0f), cabbage::UVCoordinate(1.0f,1.0f)), // top right
-        cabbage::Vertex(glm::vec3((float)(mode->width) - 100.0f, (float)(mode->height)         , 0.0f), cabbage::UVCoordinate(0.0f,0.0f)), // bottom left
-        cabbage::Vertex(glm::vec3((float)(mode->width)         , (float)(mode->height)         , 0.0f), cabbage::UVCoordinate(1.0f,0.0f)), // bottom right
+    glm::vec3 vertices[] = {
+        glm::vec3((float)(mode->width) - 100.0f, (float)(mode->height) - 100.0f, 0.0f), // top left
+        glm::vec3((float)(mode->width)         , (float)(mode->height) - 100.0f, 0.0f), // top right
+        glm::vec3((float)(mode->width) - 100.0f, (float)(mode->height)         , 0.0f), // bottom left
+        glm::vec3((float)(mode->width)         , (float)(mode->height)         , 0.0f), // bottom right
+    };
+    cabbage::UVCoordinate uvData[] = {
+        cabbage::UVCoordinate(0.0f,1.0f), // top left
+        cabbage::UVCoordinate(1.0f,1.0f), // top right
+        cabbage::UVCoordinate(0.0f,0.0f), // bottom left
+        cabbage::UVCoordinate(1.0f,0.0f), // bottom right
     };
 
-    cabbage::VertexBufferLayout layout;
-    layout.Push<float>(3);
-    layout.Push<float>(2);
-    cabbage::VertexBuffer vbo(vertices,sizeof(cabbage::Vertex) * 4);
+    cabbage::VertexBufferLayout vertexLayout;
+    vertexLayout.Push<float>(3);
+    cabbage::VertexBuffer vbo(vertices,sizeof(glm::vec3) * 4);
+    cabbage::VertexBufferLayout uvDataLayout;
+    uvDataLayout.Push<float>(2);
+    cabbage::VertexBuffer uvBuffer(uvData,sizeof(cabbage::UVCoordinate) * 4);
     cabbage::VertexArray vao;
-    vao.AddBuffer(vbo, layout);
+    vao.AddBuffer(vbo, vertexLayout);
+    vao.AddBuffer(uvBuffer, uvDataLayout);
 
     stbi_set_flip_vertically_on_load(true);
     cabbage::Texture* texture = cabbage::TextureLoader::load("test.png");
@@ -245,7 +273,7 @@ int main(int argc, char *argv[]) {
     const std::chrono::milliseconds target_frame_duration(1000 / target_fps);
     int spriteId = 0;
     auto lastTime = std::chrono::high_resolution_clock::now();
-    while(!glfwWindowShouldClose(window)){
+    while(!glfwWindowShouldClose(cwindow.GetGLFWwindow())){
         auto frame_start = std::chrono::high_resolution_clock::now();
 	glClear(GL_COLOR_BUFFER_BIT);
         glPolygonMode(GL_FRONT, GL_FILL);
@@ -254,9 +282,8 @@ int main(int argc, char *argv[]) {
         vao.Bind();
         ibo.Bind();
         spriteShader.Bind();
-        updateUV(vertices, spriteSheet.getSpriteUVRect(spriteId));
-        vbo.SetData(0, sizeof(vertices), vertices);
-        //glBufferSubData(GL_ARRAY_BUFFER,0,sizeof(vertices),vertices);
+        updateUV(uvData, spriteSheet.getSpriteUVRect(spriteId));
+        uvBuffer.SetData(0, sizeof(uvData), uvData);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         std::chrono::duration<float> elapsedTime = std::chrono::high_resolution_clock::now() - lastTime;
@@ -272,7 +299,7 @@ int main(int argc, char *argv[]) {
             lastTime = std::chrono::high_resolution_clock::now();
         }
 
-	glfwSwapBuffers(window);
+	glfwSwapBuffers(cwindow.GetGLFWwindow());
         glfwPollEvents();
         auto frame_end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double, std::milli> frame_time = frame_end - frame_start;
@@ -281,7 +308,7 @@ int main(int argc, char *argv[]) {
             std::this_thread::sleep_for(target_frame_duration - frame_time);
         }
     }
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(cwindow.GetGLFWwindow());
     glfwTerminate();
     return 0;
 }

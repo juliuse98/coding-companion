@@ -1,6 +1,7 @@
 #include "texture.h"
 
 #include <GL/glew.h>
+#include <cstdlib>
 
 namespace cabbage {
 
@@ -12,7 +13,15 @@ namespace cabbage {
 	{
 		glGenTextures(1, &m_glId);
 		glActiveTexture(GL_TEXTURE0);
-	};
+	}
+	Texture::~Texture()
+	{
+		if(m_data)
+		{
+			free(m_data);
+			m_data = nullptr;
+		}
+	}
 	void Texture::bind()
 	{
 		glBindTexture(GL_TEXTURE_2D, m_glId);	

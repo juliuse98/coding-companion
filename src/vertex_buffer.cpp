@@ -3,6 +3,7 @@
 #include "renderer.h"
 
 namespace cabbage {
+
 		VertexBuffer::VertexBuffer(const void* data, unsigned int size, int GlDrawType)
 		{
 				GLCall(glGenBuffers(1, &m_RendererId));
@@ -29,4 +30,5 @@ namespace cabbage {
 		{
 				GLCall(glBufferSubData(GL_ARRAY_BUFFER,offset,size,data));
 		}
+
 }
