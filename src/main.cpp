@@ -2,11 +2,11 @@
 #include "ccobject.h"
 #include "shader.h"
 #include "sprite.h"
+#include "sprite_renderer.h"
 #include "texture.h"
 #include "texture_loader.h"
 #include "vertex_array.h"
 #include "vertex_buffer.h"
-#include "vertex.h"
 #include "vertex_buffer_layout.h"
 #include "window.h"
 #include <GL/glew.h>
@@ -20,7 +20,6 @@
 
 #include <iostream>
 
-#include <cstddef>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "glm/ext/matrix_clip_space.hpp"
@@ -204,8 +203,9 @@ int main(int argc, char *argv[]) {
     delete(texture1);
     cabbage::Sprite catSprite(&textures[0]);
     
-   coco::CCObject obj;
+    coco::CCObject obj;
     obj.SetSprite(&catSprite);
+    cabbage::SpriteRenderer r;
     //SpriteRenderer r(w);
     //Scene s;
     //s.rootObj.addChild(obj);
@@ -214,15 +214,8 @@ int main(int argc, char *argv[]) {
 
 
 
-    unsigned int indices[] = {
-        0,2,1,
-        1,2,3
-    };
-
     cabbage::Shader spriteShader("res/sprite.shader");
     spriteShader.Bind();
-
-    cabbage::IndexBuffer ibo(indices,6);
 
     glm::vec3 vertices[] = {
         glm::vec3((float)(mode->width) - 100.0f, (float)(mode->height) - 100.0f, 0.0f), // top left
@@ -236,19 +229,15 @@ int main(int argc, char *argv[]) {
         cabbage::UVCoordinate(0.0f,0.0f), // bottom left
         cabbage::UVCoordinate(1.0f,0.0f), // bottom right
     };
-
-    cabbage::VertexBufferLayout vertexLayout;
-    vertexLayout.Push<float>(3);
-    cabbage::VertexBuffer vbo(vertices,sizeof(glm::vec3) * 4);
-    cabbage::VertexBufferLayout uvDataLayout;
-    uvDataLayout.Push<float>(2);
-    cabbage::VertexBuffer uvBuffer(uvData,sizeof(cabbage::UVCoordinate) * 4);
-    cabbage::VertexArray vao;
-    vao.AddBuffer(vbo, vertexLayout);
-    vao.AddBuffer(uvBuffer, uvDataLayout);
-
     stbi_set_flip_vertically_on_load(true);
     cabbage::Texture* texture = cabbage::TextureLoader::load("test.png");
+    int textureIdData[] = {
+    };
+
+    //cabbage::VertexBufferLayout uvDataLayout;
+    //uvDataLayout.Push<float>(2);
+    //cabbage::VertexBuffer uvBuffer(uvData,sizeof(cabbage::UVCoordinate) * 4);
+
     cabbage::SpriteSheet spriteSheet = cabbage::SpriteSheet(texture);
     spriteSheet.addSpriteUVRect(0.0f, 0.66f, 0.33f, 0.33f);
     spriteSheet.addSpriteUVRect(0.33f, 0.66f, 0.33f, 0.33f);
@@ -279,12 +268,10 @@ int main(int argc, char *argv[]) {
         glPolygonMode(GL_FRONT, GL_FILL);
         glPolygonMode(GL_BACK, GL_LINE);
 
-        vao.Bind();
-        ibo.Bind();
         spriteShader.Bind();
-        updateUV(uvData, spriteSheet.getSpriteUVRect(spriteId));
-        uvBuffer.SetData(0, sizeof(uvData), uvData);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        //updateUV(uvData, spriteSheet.getSpriteUVRect(spriteId));
+        //uvBuffer.SetData(0, sizeof(uvData), uvData);
+        r.draw(obj);
 
         std::chrono::duration<float> elapsedTime = std::chrono::high_resolution_clock::now() - lastTime;
 

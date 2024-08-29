@@ -19,6 +19,7 @@ set(SOURCE_FILES
 	src/vertex_buffer_layout.cpp
 	src/ccobject.cpp
 	src/window.cpp
+	src/sprite_renderer.cpp
 
 	include/environment.h
 	include/sprite.h
@@ -34,6 +35,7 @@ set(SOURCE_FILES
 	include/vertex_buffer_layout.h
 	include/ccobject.h
 	include/window.h
+	include/sprite_renderer.h
 )
 
 include_directories(include/ deps/ deps/glfw/include deps/windows/glew/include deps/glm/ deps/stb/ ${BOOST_INCLUDE_DIRS})
