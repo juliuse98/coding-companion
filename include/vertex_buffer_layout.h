@@ -13,6 +13,7 @@ namespace cabbage {
 		static unsigned int GetSizeOfType(unsigned int type) {
 			switch (type) {
 				case GL_FLOAT:           return 4;
+				case GL_INT:             return 4;
 				case GL_UNSIGNED_INT:    return 4;
 				case GL_UNSIGNED_BYTE:   return 1;
 			};
@@ -44,6 +45,9 @@ namespace cabbage {
 
 	template<>
 	void VertexBufferLayout::Push<unsigned int>(unsigned int count);
+
+	template<>
+	void VertexBufferLayout::Push<int>(unsigned int count);
 
 	template<>
 	void VertexBufferLayout::Push<unsigned char>(unsigned int count);

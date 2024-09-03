@@ -196,16 +196,25 @@ int main(int argc, char *argv[]) {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 
-    std::vector<cabbage::Texture> textures;
-    
-    cabbage::Texture* texture1 = cabbage::TextureLoader::load("test.png");
-    textures.push_back(*texture1);
-    delete(texture1);
-    cabbage::Sprite catSprite(&textures[0]);
-    
     coco::CCObject obj;
-    obj.SetSprite(&catSprite);
+    coco::CCObject child1;
+
     cabbage::SpriteRenderer r;
+    std::vector<cabbage::Texture*> textures;
+    
+    stbi_set_flip_vertically_on_load(true);
+
+    cabbage::Texture* texture1 = cabbage::TextureLoader::load("arrowsRed.png");
+    textures.push_back(texture1);
+    cabbage::Texture* texture2 = cabbage::TextureLoader::load("arrowsGreen.png");
+    textures.push_back(texture2);
+
+    cabbage::Sprite catSprite(textures[0]);
+    cabbage::Sprite arrowsGreenSprite(textures[0]);
+    obj.SetSprite(&catSprite);
+    child1.SetSprite(&arrowsGreenSprite);
+    obj.addChild(&child1);
+    
     //SpriteRenderer r(w);
     //Scene s;
     //s.rootObj.addChild(obj);
@@ -216,29 +225,9 @@ int main(int argc, char *argv[]) {
 
     cabbage::Shader spriteShader("res/sprite.shader");
     spriteShader.Bind();
-
-    glm::vec3 vertices[] = {
-        glm::vec3((float)(mode->width) - 100.0f, (float)(mode->height) - 100.0f, 0.0f), // top left
-        glm::vec3((float)(mode->width)         , (float)(mode->height) - 100.0f, 0.0f), // top right
-        glm::vec3((float)(mode->width) - 100.0f, (float)(mode->height)         , 0.0f), // bottom left
-        glm::vec3((float)(mode->width)         , (float)(mode->height)         , 0.0f), // bottom right
-    };
-    cabbage::UVCoordinate uvData[] = {
-        cabbage::UVCoordinate(0.0f,1.0f), // top left
-        cabbage::UVCoordinate(1.0f,1.0f), // top right
-        cabbage::UVCoordinate(0.0f,0.0f), // bottom left
-        cabbage::UVCoordinate(1.0f,0.0f), // bottom right
-    };
-    stbi_set_flip_vertically_on_load(true);
-    cabbage::Texture* texture = cabbage::TextureLoader::load("test.png");
-    int textureIdData[] = {
-    };
-
-    //cabbage::VertexBufferLayout uvDataLayout;
-    //uvDataLayout.Push<float>(2);
-    //cabbage::VertexBuffer uvBuffer(uvData,sizeof(cabbage::UVCoordinate) * 4);
-
-    cabbage::SpriteSheet spriteSheet = cabbage::SpriteSheet(texture);
+    textures.at(0)->bind(0);
+    textures.at(1)->bind(1);
+    cabbage::SpriteSheet spriteSheet = cabbage::SpriteSheet(textures.at(0));
     spriteSheet.addSpriteUVRect(0.0f, 0.66f, 0.33f, 0.33f);
     spriteSheet.addSpriteUVRect(0.33f, 0.66f, 0.33f, 0.33f);
     spriteSheet.addSpriteUVRect(0.66f, 0.66f, 0.33f, 0.33f);
@@ -251,9 +240,10 @@ int main(int argc, char *argv[]) {
     glm::mat4 projection = glm::ortho(0.0f,(float)(mode->width), (float)(mode->height), 0.0f, -1.0f,1.0f);
 
 
-    spriteShader.SetUniform1i("ourTexture", 0);
+ 
+    int samplers[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+    spriteShader.SetUniform1iv("ourTexture", 8, samplers);
     spriteShader.SetUniformMat4f("projection", projection);
-    texture->bind();
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -269,6 +259,7 @@ int main(int argc, char *argv[]) {
         glPolygonMode(GL_BACK, GL_LINE);
 
         spriteShader.Bind();
+        obj.GetSprite()->SetUVRect(spriteSheet.getSpriteUVRect(spriteId));
         //updateUV(uvData, spriteSheet.getSpriteUVRect(spriteId));
         //uvBuffer.SetData(0, sizeof(uvData), uvData);
         r.draw(obj);

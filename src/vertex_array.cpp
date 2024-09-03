@@ -2,6 +2,7 @@
 
 #include "renderer.h"
 #include "vertex_buffer_layout.h"
+#include <iostream>
 
 namespace cabbage {
 
@@ -21,14 +22,41 @@ namespace cabbage {
 		vb.Bind();
 		const auto& elements = layout.GetElements();
 
+		m_vertexAttributes[&vb] = m_lastAttribArrayId;
+		std::cout << m_vertexAttributes[&vb] << std::endl;
+
 		unsigned int offset = 0;
 		for (unsigned int i = 0; i < elements.size(); ++i) {
 			const auto& element = elements[i];
 			GLCall(glEnableVertexAttribArray(m_lastAttribArrayId + i));
+			if(element.type == GL_INT)
+			{
+				
+			GLCall(glVertexAttribIPointer(m_lastAttribArrayId + i, element.count, element.type, layout.GetStride(), (const void*)offset));
+			}
+			else
+			{
+
+			GLCall(glVertexAttribPointer(m_lastAttribArrayId + i, element.count, element.type, element.normalized, layout.GetStride(), (const void*)offset));
+			}
 			GLCall(glVertexAttribPointer(m_lastAttribArrayId + i, element.count, element.type, element.normalized, layout.GetStride(), (const void*)offset));
 			offset += element.count * VertexBufferElement::GetSizeOfType(element.type);
 		}
 		m_lastAttribArrayId = m_lastAttribArrayId + elements.size();
+	}
+	void VertexArray::UpdateBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout)
+	{
+		Bind();
+		vb.Bind();
+		const auto& elements = layout.GetElements();
+
+		std::cout << m_vertexAttributes[&vb] << std::endl;
+		unsigned int offset = 0;
+		for (unsigned int i = 0; i < elements.size(); ++i) {
+			const auto& element = elements[i];
+			GLCall(glVertexAttribPointer(m_vertexAttributes[&vb] + i, element.count, element.type, element.normalized, layout.GetStride(), (const void*)offset));
+			offset += element.count * VertexBufferElement::GetSizeOfType(element.type);
+		}
 	}
 
 	void VertexArray::Bind() const

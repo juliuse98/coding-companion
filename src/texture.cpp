@@ -12,7 +12,6 @@ namespace cabbage {
 	, m_data(data)
 	{
 		glGenTextures(1, &m_glId);
-		glActiveTexture(GL_TEXTURE0);
 	}
 	Texture::~Texture()
 	{
@@ -24,6 +23,17 @@ namespace cabbage {
 	}
 	void Texture::bind()
 	{
+		glBindTexture(GL_TEXTURE_2D, m_glId);	
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_data);
+	    glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	void Texture::bind(unsigned int textureSlot)
+	{
+		glActiveTexture(GL_TEXTURE0 + textureSlot);
 		glBindTexture(GL_TEXTURE_2D, m_glId);	
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

@@ -15,6 +15,12 @@ namespace cabbage {
 	}
 
 	template<>
+	void VertexBufferLayout::Push<int>(unsigned int count) {
+		m_Elements.push_back(VertexBufferElement{ GL_INT, count, GL_TRUE });
+		m_Stride += VertexBufferElement::GetSizeOfType(GL_INT) * count;
+	}
+
+	template<>
 	void VertexBufferLayout::Push<unsigned char>(unsigned int count) {
 		m_Elements.push_back(VertexBufferElement{ GL_UNSIGNED_BYTE, count, GL_TRUE });
 		m_Stride += VertexBufferElement::GetSizeOfType(GL_UNSIGNED_BYTE) * count;

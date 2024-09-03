@@ -25,6 +25,7 @@ namespace cabbage {
 
 		//Set uniforms
 		void SetUniform1i(const std::string& name, int value);
+		void SetUniform1iv(const std::string& name,unsigned int count, const int* value);
 		void SetUniform1f(const std::string& name, float value);
 		void SetUniform1fv(const std::string& name,unsigned int count, const float* value);
 		void SetUniform3fv(const std::string& name, glm::vec3 value);

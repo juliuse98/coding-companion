@@ -7,6 +7,7 @@ namespace cabbage {
 		Texture(int width, int height, int nrChannels, unsigned char* data);
 		~Texture();
 		void bind();
+		void bind(unsigned int textureSlot);
 		void unbind();
 
 	private:

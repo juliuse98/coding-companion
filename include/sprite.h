@@ -4,6 +4,7 @@
 #include "texture.h"
 #include <cstddef>
 #include <vector>
+#include <array>
 namespace cabbage {
 
 	struct UVCoordinate
@@ -20,6 +21,9 @@ namespace cabbage {
 
 		SpriteUVRect(float u, float v, float width, float height)
 			: UVCoordinate(u, v), width(width), height(height) {}
+	std::array<float, 8> toUVArray(){
+		return {u,v + height, u + width, v + height, u, v, u + width, v};
+	};
 	};
 
 	class SpriteSheet
@@ -41,6 +45,9 @@ namespace cabbage {
     public:
         Sprite(Texture* texture = nullptr) : m_texture(texture), m_uvRect(0.0f, 0.0f, 1.0f, 1.0f){};
         Sprite(SpriteUVRect& uvRect, Texture* texture = nullptr) : m_texture(texture), m_uvRect(uvRect){};
+	SpriteUVRect& GetUVRect(){return m_uvRect;};
+	void SetUVRect(const SpriteUVRect& uvRect){m_uvRect = uvRect;};
+	Texture* GetTexutre(){return m_texture;};
 	};
 
     class SpriteSheet1
