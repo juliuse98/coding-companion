@@ -4,8 +4,10 @@
 #include <memory>
 #include <vector>
 #include <iostream>
+#include <easylogging++.h>
 
 #include "ccobject.h"
+#include "glm/ext/matrix_clip_space.hpp"
 #include "sprite.h"
 
 namespace cabbage {
@@ -14,8 +16,14 @@ namespace cabbage {
     : m_indexBuffer(m_indices, 6)
     , m_vertexBuffer(m_vertices, sizeof(glm::vec3) * 4)
     , m_uvBuffer(test.data(), sizeof(cabbage::UVCoordinate) * 4)
-    , m_textureManager()
+    , m_defaultShader("res/sprite.shader")
+    , m_projection(glm::ortho(0.0f,1920.0f,1000.0f,0.0f, -1.0f, 1.0f))
     {
+        //Prepare Shader
+        m_defaultShader.Bind();  
+        m_defaultShader.SetUniform1iv("ourTexture", 8, m_samplers.data());
+        m_defaultShader.SetUniformMat4f("projection", m_projection);
+        
         m_textureSlotBuffer = std::make_unique<VertexBuffer>(m_textureIds.data(), sizeof(float) * 8);
         m_textureSlotBufferLayout.Push<float>(1);
         m_vertexBufferLayout.Push<float>(3);
@@ -34,13 +42,13 @@ namespace cabbage {
     }
     void SpriteRenderer::draw(coco::CCObject& object)
     {
+        m_defaultShader.Bind();
         std::vector<coco::CCObject*> children = object.GetChildren();
         
         std::vector<coco::CCObject*>::iterator it;
         
-        
-        //std::cout << "hello " << m_textureManager.AddTexture(object.GetSprite()->GetTexutre()) << std::endl;
-        //m_textureIds[0] = m_textureManager.bindTexture(object.GetSprite()->GetTexutre());
+        m_textureManager.AddTexture(object.GetSprite()->GetTexutre());
+        m_textureIds[0] = m_textureManager.bindTexture(object.GetSprite()->GetTexutre());
         m_uvData.clear();
         std::array<float, 8> uvD = object.GetSprite()->GetUVRect().toUVArray();
         m_uvData.insert(m_uvData.end(),uvD.begin(),uvD.end());
@@ -48,14 +56,13 @@ namespace cabbage {
         {
             std::array<float, 8> uvD = (*it)->GetSprite()->GetUVRect().toUVArray();
             m_uvData.insert(m_uvData.end(),uvD.begin(),uvD.end());
-            //m_textureManager.AddTexture((*it)->GetSprite()->GetTexutre());
-            //std::cout << "hello " << m_textureManager.AddTexture((*it)->GetSprite()->GetTexutre()) << std::endl;
-            //m_textureIds[1] = m_textureManager.bindTexture((*it)->GetSprite()->GetTexutre());
+            m_textureManager.AddTexture((*it)->GetSprite()->GetTexutre());
+            m_textureIds[1] = m_textureManager.bindTexture((*it)->GetSprite()->GetTexutre());
         } 
         m_uvBuffer.Bind();
         m_uvBuffer.Resize(sizeof(cabbage::UVCoordinate) * m_uvData.size(),m_uvData.data());    
         m_textureSlotBuffer->Bind();
- //       m_textureSlotBuffer->SetData(0, sizeof(int) * 8, m_textureIds.data());
+        m_textureSlotBuffer->SetData(0, sizeof(int) * 8, m_textureIds.data());
         m_vertexArray.UpdateBuffer(m_uvBuffer, m_uvBufferLayout);
         m_indexBuffer.Bind();
         m_vertexArray.Bind();

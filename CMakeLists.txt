@@ -36,9 +36,13 @@ set(SOURCE_FILES
 	include/ccobject.h
 	include/window.h
 	include/sprite_renderer.h
+
+	# EasyLogingpp
+	deps/easyloggingpp/easylogging++.h
+	deps/easyloggingpp/easylogging++.cc
 )
 
-include_directories(include/ deps/ deps/glfw/include deps/windows/glew/include deps/glm/ deps/stb/ ${BOOST_INCLUDE_DIRS})
+include_directories(include/ deps/ deps/glfw/include deps/windows/glew/include deps/glm/ ./deps/easyloggingpp/ deps/stb/ ${BOOST_INCLUDE_DIRS})
 
 # Add executable target with source files listed in SOURCE_FILES variable
 add_executable(codingCompanion ${SOURCE_FILES})

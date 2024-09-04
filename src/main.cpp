@@ -14,11 +14,14 @@
 #include <chrono>
 #include <thread>
 
+// Easyloggingpp
+#include <easylogging++.h>
+INITIALIZE_EASYLOGGINGPP
+
+
 #ifdef APIENTRY
 #undef APIENTRY  // Fix macro redefinition warning for Windows
 #endif
-
-#include <iostream>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -66,9 +69,6 @@ void makeWindowTransparentAndClickThrough(GLFWwindow* window)
     XserverRegion region = XFixesCreateRegion(display, &rect, 1);
     XFixesSetWindowShapeRegion(display, win, ShapeInput, 0, 0, region);
     XFixesDestroyRegion(display, region);
-
-
-     
 
     int screen = DefaultScreen(display);
     Window root = RootWindow(display, screen);
@@ -161,14 +161,19 @@ void updateUV(cabbage::UVCoordinate vertices[], cabbage::SpriteUVRect rect)
 }
 
 int main(int argc, char *argv[]) {
-    std::cout << "Start Init" << std::endl;
+    START_EASYLOGGINGPP(argc, argv);
+    el::Configurations conf("./easyloggingpp.conf");
+    el::Loggers::reconfigureLogger("default", conf);
+    el::Loggers::reconfigureAllLoggers(conf);
+
+    LOG(INFO) << "Start Init";
     if (!glfwInit()){
-	std::cout << "GLFW init failed!" << std::endl;
+	LOG(ERROR) << "GLFW init failed!";
     }
-    std::cout << "Init Complete" << std::endl;
+    LOG(INFO) << "Init Complete";
 
 
-    std::cout << "Create Window" << std::endl;
+    LOG(INFO) << "Create Window";
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
     cabbage::Window cwindow;
@@ -183,16 +188,16 @@ int main(int argc, char *argv[]) {
     cwindow.setWindowHint( GLFW_FOCUS_ON_SHOW,             GLFW_FALSE);
     std::string windowTitle = "Coding Companion";
     if(!cwindow.init(mode->width - 1, mode->height - 1, windowTitle)){
-        std::cout << "GLFW cannot open window!" << std::endl;
+        LOG(INFO) << "GLFW cannot open window!";
     }
     cwindow.setPosition(0, 0);
 
-    std::cout << "Init GLEW" << std::endl;
+    LOG(INFO) << "Init GLEW";
     glewInit();
    
     makeWindowTransparentAndClickThrough(cwindow.GetGLFWwindow());
 
-    std::cout << "Init GLEW Complete" << std::endl;
+    LOG(INFO) << "Init GLEW Complete";
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 
@@ -210,7 +215,7 @@ int main(int argc, char *argv[]) {
     textures.push_back(texture2);
 
     cabbage::Sprite catSprite(textures[0]);
-    cabbage::Sprite arrowsGreenSprite(textures[0]);
+    cabbage::Sprite arrowsGreenSprite(textures[1]);
     obj.SetSprite(&catSprite);
     child1.SetSprite(&arrowsGreenSprite);
     obj.addChild(&child1);
@@ -219,14 +224,8 @@ int main(int argc, char *argv[]) {
     //Scene s;
     //s.rootObj.addChild(obj);
     //r.draw(s);
-    //
 
 
-
-    cabbage::Shader spriteShader("res/sprite.shader");
-    spriteShader.Bind();
-    textures.at(0)->bind(0);
-    textures.at(1)->bind(1);
     cabbage::SpriteSheet spriteSheet = cabbage::SpriteSheet(textures.at(0));
     spriteSheet.addSpriteUVRect(0.0f, 0.66f, 0.33f, 0.33f);
     spriteSheet.addSpriteUVRect(0.33f, 0.66f, 0.33f, 0.33f);
@@ -237,14 +236,9 @@ int main(int argc, char *argv[]) {
     spriteSheet.addSpriteUVRect(0.0f, 0.0f, 0.33f, 0.33f);
     spriteSheet.addSpriteUVRect(0.33f, 0.0f, 0.33f, 0.33f);
 
-    glm::mat4 projection = glm::ortho(0.0f,(float)(mode->width), (float)(mode->height), 0.0f, -1.0f,1.0f);
 
 
  
-    int samplers[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-    spriteShader.SetUniform1iv("ourTexture", 8, samplers);
-    spriteShader.SetUniformMat4f("projection", projection);
-    
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -258,7 +252,6 @@ int main(int argc, char *argv[]) {
         glPolygonMode(GL_FRONT, GL_FILL);
         glPolygonMode(GL_BACK, GL_LINE);
 
-        spriteShader.Bind();
         obj.GetSprite()->SetUVRect(spriteSheet.getSpriteUVRect(spriteId));
         //updateUV(uvData, spriteSheet.getSpriteUVRect(spriteId));
         //uvBuffer.SetData(0, sizeof(uvData), uvData);

@@ -1,5 +1,6 @@
 #pragma once
 #include "ccobject.h"
+#include "glm/fwd.hpp"
 #include "index_buffer.h"
 #include "sprite.h"
 #include "texture_manager.h"
@@ -26,18 +27,25 @@ namespace cabbage {
         glm::vec3(200         , 200         , 0.0f), // bottom right
     };
    std::vector<cabbage::UVCoordinate> test = {cabbage::UVCoordinate(0.0f,1.0f),cabbage::UVCoordinate(1.0f,1.0f),cabbage::UVCoordinate(0.0f,0.0f),cabbage::UVCoordinate(1.0f,0.0f)};
+
+    TextureManager m_textureManager;
+
     VertexBufferLayout m_vertexBufferLayout;
     VertexBufferLayout m_uvBufferLayout;
     VertexBufferLayout m_textureSlotBufferLayout;
-    TextureManager m_textureManager;
+
+    IndexBuffer m_indexBuffer;
+    Shader m_defaultShader;
+
     VertexBuffer m_vertexBuffer;
     VertexBuffer m_uvBuffer;
     std::unique_ptr<VertexBuffer> m_textureSlotBuffer;
     VertexArray m_vertexArray;
-    IndexBuffer m_indexBuffer;
     std::vector<float> m_uvData;
     std::vector<cabbage::UVCoordinate> uvData;
     std::vector<float> m_textureIds = {0.0f,1.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
+    std::vector<int> m_samplers = {0,1,2,3,4,5,6,7};
+    glm::mat4 m_projection;
     };
 
 }
