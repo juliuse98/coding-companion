@@ -18,6 +18,8 @@ namespace coco {
         void setScene(cabbage::Scene* scene);
         void addChild(CCObject* object);
         std::vector<CCObject*> GetChildren();
+        cabbage::Transform& GetTransform();
+        void SetTransform(cabbage::Transform& transform);
     protected:
     private:
         bool m_enabled;

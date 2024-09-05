@@ -3,7 +3,6 @@
 #include <GL/glew.h>
 #include <memory>
 #include <vector>
-#include <iostream>
 #include <easylogging++.h>
 
 #include "ccobject.h"
@@ -25,6 +24,13 @@ namespace cabbage {
         m_defaultShader.SetUniformMat4f("projection", m_projection);
         
         m_textureSlotBuffer = std::make_unique<VertexBuffer>(m_textureIds.data(), sizeof(float) * 8);
+        m_transformData.push_back(glm::mat4(1.0f));
+        m_transformBuffer = std::make_unique<VertexBuffer>(m_transformData.data(), sizeof(glm::mat4) * 1);
+        
+        m_transformBufferLayout.Push<float>(4);
+        m_transformBufferLayout.Push<float>(4);
+        m_transformBufferLayout.Push<float>(4);
+        m_transformBufferLayout.Push<float>(4);
         m_textureSlotBufferLayout.Push<float>(1);
         m_vertexBufferLayout.Push<float>(3);
         m_uvBufferLayout.Push<float>(2);
@@ -34,6 +40,11 @@ namespace cabbage {
         glVertexAttribDivisor(1,0);
         m_vertexArray.AddBuffer(*m_textureSlotBuffer, m_textureSlotBufferLayout);
         glVertexAttribDivisor(2,1);
+        m_vertexArray.AddBuffer(*m_transformBuffer, m_transformBufferLayout);
+        glVertexAttribDivisor(3,1);
+        glVertexAttribDivisor(4,1);
+        glVertexAttribDivisor(5,1);
+        glVertexAttribDivisor(6,1);
     }
     SpriteRenderer::~SpriteRenderer(){}
     void SpriteRenderer::prepareDraw()
@@ -49,6 +60,8 @@ namespace cabbage {
         
         m_textureManager.AddTexture(object.GetSprite()->GetTexutre());
         m_textureIds[0] = m_textureManager.bindTexture(object.GetSprite()->GetTexutre());
+        m_transformData.clear();
+        m_transformData.push_back(object.GetTransform().getModelMatrix());
         m_uvData.clear();
         std::array<float, 8> uvD = object.GetSprite()->GetUVRect().toUVArray();
         m_uvData.insert(m_uvData.end(),uvD.begin(),uvD.end());
@@ -58,7 +71,11 @@ namespace cabbage {
             m_uvData.insert(m_uvData.end(),uvD.begin(),uvD.end());
             m_textureManager.AddTexture((*it)->GetSprite()->GetTexutre());
             m_textureIds[1] = m_textureManager.bindTexture((*it)->GetSprite()->GetTexutre());
+            m_transformData.push_back((*it)->GetTransform().getModelMatrix());
         } 
+        m_transformBuffer->Bind();
+        m_transformBuffer->Resize(sizeof(glm::mat4) * m_transformData.size(), m_transformData.data());
+        m_vertexArray.UpdateBuffer(*m_transformBuffer, m_transformBufferLayout);    
         m_uvBuffer.Bind();
         m_uvBuffer.Resize(sizeof(cabbage::UVCoordinate) * m_uvData.size(),m_uvData.data());    
         m_textureSlotBuffer->Bind();

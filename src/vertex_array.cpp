@@ -3,6 +3,7 @@
 #include "renderer.h"
 #include "vertex_buffer_layout.h"
 #include <iostream>
+#include "easylogging++.h"
 
 namespace cabbage {
 
@@ -23,7 +24,6 @@ namespace cabbage {
 		const auto& elements = layout.GetElements();
 
 		m_vertexAttributes[&vb] = m_lastAttribArrayId;
-		std::cout << m_vertexAttributes[&vb] << std::endl;
 
 		unsigned int offset = 0;
 		for (unsigned int i = 0; i < elements.size(); ++i) {
@@ -36,10 +36,9 @@ namespace cabbage {
 			}
 			else
 			{
-
+			LOG(INFO) << m_lastAttribArrayId + i << "  " << element.count << "  " <<  element.type<<"  "<< element.normalized<<"  "<< layout.GetStride() << "  " << (const void*)offset;
 			GLCall(glVertexAttribPointer(m_lastAttribArrayId + i, element.count, element.type, element.normalized, layout.GetStride(), (const void*)offset));
 			}
-			GLCall(glVertexAttribPointer(m_lastAttribArrayId + i, element.count, element.type, element.normalized, layout.GetStride(), (const void*)offset));
 			offset += element.count * VertexBufferElement::GetSizeOfType(element.type);
 		}
 		m_lastAttribArrayId = m_lastAttribArrayId + elements.size();

@@ -218,6 +218,8 @@ int main(int argc, char *argv[]) {
     cabbage::Sprite arrowsGreenSprite(textures[1]);
     obj.SetSprite(&catSprite);
     child1.SetSprite(&arrowsGreenSprite);
+    child1.GetTransform().Position = glm::vec3(100.0f,100.0f,0.0f);
+    child1.GetTransform().Scale = glm::vec3(2.0f,2.0f,0.0f);
     obj.addChild(&child1);
     
     //SpriteRenderer r(w);
@@ -255,6 +257,7 @@ int main(int argc, char *argv[]) {
         obj.GetSprite()->SetUVRect(spriteSheet.getSpriteUVRect(spriteId));
         //updateUV(uvData, spriteSheet.getSpriteUVRect(spriteId));
         //uvBuffer.SetData(0, sizeof(uvData), uvData);
+        obj.GetTransform().Position = glm::vec3(100.0f * spriteId, 100.0f,0.0f);
         r.draw(obj);
 
         std::chrono::duration<float> elapsedTime = std::chrono::high_resolution_clock::now() - lastTime;
