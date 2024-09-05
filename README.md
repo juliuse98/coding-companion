@@ -105,8 +105,8 @@ CMake will create a *compile_commands.json* file in the build folder. In order f
 ```bash simlink command 
 ln -s ***path/to/file/compile_commands.json*** ***path/to/root/of/project/compile_commands.json***
 ```
-[!IMPORTANT]
-The `compile_commands.json` will only be created by certain build systems. Build systems that worked for me: Ninja, Unix Makefiles. Visual Studio (MSBuild) did not work out of the box.
+> [!IMPORTANT]
+> The `compile_commands.json` will only be created by certain build systems. Build systems that worked for me: Ninja, Unix Makefiles. Visual Studio (MSBuild) did not work out of the box.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
