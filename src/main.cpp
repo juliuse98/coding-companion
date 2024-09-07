@@ -209,9 +209,9 @@ int main(int argc, char *argv[]) {
     
     stbi_set_flip_vertically_on_load(true);
 
-    cabbage::Texture* texture1 = cabbage::TextureLoader::load("arrowsRed.png");
+    cabbage::Texture* texture1 = cabbage::TextureLoader::load("resources/textures/arrowsRed.png");
     textures.push_back(texture1);
-    cabbage::Texture* texture2 = cabbage::TextureLoader::load("arrowsGreen.png");
+    cabbage::Texture* texture2 = cabbage::TextureLoader::load("resources/textures/arrowsGreen.png");
     textures.push_back(texture2);
 
     cabbage::Sprite catSprite(textures[0]);

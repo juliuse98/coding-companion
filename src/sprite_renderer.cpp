@@ -15,7 +15,7 @@ namespace cabbage {
     : m_indexBuffer(m_indices, 6)
     , m_vertexBuffer(m_vertices, sizeof(glm::vec3) * 4)
     , m_uvBuffer(test.data(), sizeof(cabbage::UVCoordinate) * 4)
-    , m_defaultShader("res/sprite.shader")
+    , m_defaultShader("resources/shaders/sprite.shader")
     , m_projection(glm::ortho(0.0f,1920.0f,1000.0f,0.0f, -1.0f, 1.0f))
     {
         //Prepare Shader

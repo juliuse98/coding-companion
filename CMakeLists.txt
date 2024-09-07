@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.13)
 
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
+
+include(CopyResources)
+message("CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
 project(Coding-Companion)
@@ -44,8 +49,8 @@ set(SOURCE_FILES
 
 include_directories(include/ deps/ deps/glfw/include deps/windows/glew/include deps/glm/ ./deps/easyloggingpp/ deps/stb/ ${BOOST_INCLUDE_DIRS})
 
-# Add executable target with source files listed in SOURCE_FILES variable
 add_executable(codingCompanion ${SOURCE_FILES})
+add_dependencies(codingCompanion copy_resources)
 
 add_compile_definitions(GLEW_STATIC)
 
@@ -82,3 +87,4 @@ elseif(WIN32)
 		${BOOST_LIBRARIES}
 		)
 endif()
+
