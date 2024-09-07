@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
 include(CopyResources)
-message("CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
+include(CreateCmpCmdsLink)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
@@ -50,7 +50,9 @@ set(SOURCE_FILES
 include_directories(include/ deps/ deps/glfw/include deps/windows/glew/include deps/glm/ ./deps/easyloggingpp/ deps/stb/ ${BOOST_INCLUDE_DIRS})
 
 add_executable(codingCompanion ${SOURCE_FILES})
+
 add_dependencies(codingCompanion copy_resources)
+add_dependencies(codingCompanion create_compile_commands_link)
 
 add_compile_definitions(GLEW_STATIC)
 
