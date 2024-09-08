@@ -41,13 +41,14 @@ set(SOURCE_FILES
 	include/ccobject.h
 	include/window.h
 	include/sprite_renderer.h
+	include/render_batch.h
 
 	# EasyLogingpp
 	deps/easyloggingpp/easylogging++.h
 	deps/easyloggingpp/easylogging++.cc
 )
 
-include_directories(include/ deps/ deps/glfw/include deps/windows/glew/include deps/glm/ ./deps/easyloggingpp/ deps/stb/ ${BOOST_INCLUDE_DIRS})
+include_directories(include/ deps/ deps/glfw/include deps/windows/glew/include deps/glm/ deps/easyloggingpp/ deps/nano-signal-slot/  deps/stb/ ${BOOST_INCLUDE_DIRS})
 
 add_executable(codingCompanion ${SOURCE_FILES})
 
