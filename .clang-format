@@ -2,6 +2,10 @@
 # We'll use defaults from the LLVM style, but with 4 columns indentation.
 BasedOnStyle: LLVM
 IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 120
+AlignConsecutiveDeclarations: true
 
 BreakBeforeBraces: Custom
 
@@ -17,3 +21,16 @@ BraceWrapping:
   IndentBraces: false
 
 PointerAlignment: Left
+
+AlignAfterOpenBracket: BlockIndent
+
+# Ensures that the closing parenthesis is aligned with the function call line
+AlwaysBreakAfterDefinitionReturnType: None
+AllowShortFunctionsOnASingleLine: None
+
+BreakBeforeBinaryOperators: NonAssignment
+PenaltyBreakBeforeFirstCallParameter: 0
+
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+
+BreakConstructorInitializersBeforeComma: true
