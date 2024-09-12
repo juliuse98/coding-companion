@@ -9,6 +9,7 @@ namespace cabbage {
 		unsigned int type;
 		unsigned int count;
 		unsigned char normalized;
+		unsigned int divisor;
 
 		static unsigned int GetSizeOfType(unsigned int type) {
 			switch (type) {
@@ -31,7 +32,7 @@ namespace cabbage {
 		VertexBufferLayout() : m_Stride(0) {}
 
 		template<typename T>
-		void Push(unsigned int count) {
+		void Push(unsigned int count, unsigned int divisor = 0) {
 			// Causes a compile-time error if an unsupported type is used
 			static_assert(sizeof(T) == 0, "Unsupported type in VertexBufferLayout::Push");
 		}
@@ -41,15 +42,15 @@ namespace cabbage {
 	};
 
 	template<>
-	void VertexBufferLayout::Push<float>(unsigned int count);
+	void VertexBufferLayout::Push<float>(unsigned int count, unsigned int divisor);
 
 	template<>
-	void VertexBufferLayout::Push<unsigned int>(unsigned int count);
+	void VertexBufferLayout::Push<unsigned int>(unsigned int count, unsigned int divisor);
 
 	template<>
-	void VertexBufferLayout::Push<int>(unsigned int count);
+	void VertexBufferLayout::Push<int>(unsigned int count, unsigned int divisor);
 
 	template<>
-	void VertexBufferLayout::Push<unsigned char>(unsigned int count);
+	void VertexBufferLayout::Push<unsigned char>(unsigned int count, unsigned int divisor);
 
 }  // namespace cabbage
