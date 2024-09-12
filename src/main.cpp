@@ -1,13 +1,9 @@
 #include "ccobject.h"
-#include "index_buffer.h"
-#include "shader.h"
 #include "sprite.h"
 #include "sprite_renderer.h"
 #include "texture.h"
 #include "texture_loader.h"
-#include "vertex_array.h"
 #include "vertex_buffer.h"
-#include "vertex_buffer_layout.h"
 #include "window.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -22,7 +18,6 @@ INITIALIZE_EASYLOGGINGPP
 #undef APIENTRY // Fix macro redefinition warning for Windows
 #endif
 
-#include "glm/ext/matrix_clip_space.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -53,11 +48,13 @@ INITIALIZE_EASYLOGGINGPP
 void makeWindowTransparentAndClickThrough(GLFWwindow* window)
 {
     Display* display = glfwGetX11Display();
-    Window win = glfwGetX11Window(window);
+    Window   win = glfwGetX11Window(window);
     Atom opacityAtom = XInternAtom(display, "_NET_WM_WINDOW_OPACITY", False);
     unsigned long opacity = (unsigned long)(1.0 * 0xFFFFFFFF);
-    XChangeProperty(display, win, opacityAtom, XA_CARDINAL, 32, PropModeReplace,
-                    (unsigned char*)&opacity, 1);
+    XChangeProperty(
+        display, win, opacityAtom, XA_CARDINAL, 32, PropModeReplace,
+        (unsigned char*)&opacity, 1
+    );
 
     XRectangle rect;
     rect.x = 0;
@@ -69,21 +66,23 @@ void makeWindowTransparentAndClickThrough(GLFWwindow* window)
     XFixesSetWindowShapeRegion(display, win, ShapeInput, 0, 0, region);
     XFixesDestroyRegion(display, region);
 
-    int screen = DefaultScreen(display);
+    int    screen = DefaultScreen(display);
     Window root = RootWindow(display, screen);
-    Atom workarea = XInternAtom(display, "_NET_WORKAREA", True);
+    Atom   workarea = XInternAtom(display, "_NET_WORKAREA", True);
     if (workarea == None)
     {
         std::cout << "error retreiving values 1" << std::endl;
     }
-    Atom actual_type;
-    int actual_format;
-    unsigned long nitems;
-    unsigned long bytes_after;
+    Atom           actual_type;
+    int            actual_format;
+    unsigned long  nitems;
+    unsigned long  bytes_after;
     unsigned char* prop = NULL;
-    if (XGetWindowProperty(display, root, workarea, 0, 4 * sizeof(long), False,
-                           XA_CARDINAL, &actual_type, &actual_format, &nitems,
-                           &bytes_after, &prop) == Success)
+    if (XGetWindowProperty(
+            display, root, workarea, 0, 4 * sizeof(long), False, XA_CARDINAL,
+            &actual_type, &actual_format, &nitems, &bytes_after, &prop
+        )
+        == Success)
     {
         if (prop)
         {
@@ -132,20 +131,25 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 void ReapplyWindowStyles(HWND hwnd)
 {
     LONG_PTR style = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
-    SetWindowLongPtr(hwnd, GWL_EXSTYLE,
-                     style | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOPMOST |
-                         WS_EX_TOOLWINDOW);
+    SetWindowLongPtr(
+        hwnd, GWL_EXSTYLE,
+        style | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOPMOST
+            | WS_EX_TOOLWINDOW
+    );
     SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0xFF, LWA_ALPHA);
-    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
-                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+    SetWindowPos(
+        hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE
+    );
 }
 
 void SetTimerForStyles(HWND hwnd)
 {
-    SetTimer(hwnd, 1, 1000,
-             [](HWND hwnd, UINT msg, UINT_PTR idEvent, DWORD dwTime) {
-                 ReapplyWindowStyles(hwnd);
-             });
+    SetTimer(
+        hwnd, 1, 1000,
+        [](HWND hwnd, UINT msg, UINT_PTR idEvent, DWORD dwTime) {
+            ReapplyWindowStyles(hwnd);
+        }
+    );
 }
 
 void makeWindowTransparentAndClickThrough(GLFWwindow* window)
@@ -159,8 +163,9 @@ void makeWindowTransparentAndClickThrough(GLFWwindow* window)
     SetTimerForStyles(hwnd);
 
     // Hook the window procedure to intercept messages
-    SetWindowLongPtr(hwnd, GWLP_WNDPROC,
-                     reinterpret_cast<LONG_PTR>(WindowProc));
+    SetWindowLongPtr(
+        hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WindowProc)
+    );
 }
 #endif
 
@@ -194,9 +199,9 @@ int main(int argc, char* argv[])
     LOG(INFO) << "Init Complete";
 
     LOG(INFO) << "Create Window";
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    GLFWmonitor*       monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-    cabbage::Window cwindow;
+    cabbage::Window    cwindow;
     cwindow.setWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     cwindow.setWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
@@ -224,8 +229,7 @@ int main(int argc, char* argv[])
     coco::CCObject obj;
     coco::CCObject child1;
 
-    std::vector<coco::CCObject*> objectsToRender;
-    cabbage::SpriteRenderer r;
+    cabbage::SpriteRenderer        r;
     std::vector<cabbage::Texture*> textures;
 
     stbi_set_flip_vertically_on_load(true);
@@ -234,29 +238,12 @@ int main(int argc, char* argv[])
     cabbage::Texture* texture1 =
         cabbage::TextureLoader::load("resources/textures/arrowsRed.png");
     textures.push_back(texture1);
-    LOG(INFO) << "Init GLEW Complete";
     cabbage::Texture* texture2 =
         cabbage::TextureLoader::load("resources/textures/arrowsGreen.png");
     textures.push_back(texture2);
 
-    LOG(INFO) << "Init GLEW Complete";
     cabbage::Sprite catSprite(textures[0]);
     cabbage::Sprite arrowsGreenSprite(textures[1]);
-    obj.SetSprite(&catSprite);
-    child1.SetSprite(&arrowsGreenSprite);
-    LOG(INFO) << "Init GLEW Complete";
-    child1.GetTransform().SetPosition(glm::vec3(100.0f, 100.0f, 0.0f));
-    child1.GetTransform().SetScale(glm::vec3(2.0f, 2.0f, 0.0f));
-    objectsToRender.push_back(&obj);
-    objectsToRender.push_back(&child1);
-    LOG(INFO) << "Init GLEW Complete";
-
-    // SpriteRenderer r(w);
-    // Scene s;
-    // s.rootObj.addChild(obj);
-    // r.draw(s);
-
-    LOG(INFO) << "Init GLEW Complete";
     cabbage::SpriteSheet spriteSheet = cabbage::SpriteSheet(textures.at(0));
     spriteSheet.addSpriteUVRect(0.0f, 0.66f, 0.33f, 0.33f);
     spriteSheet.addSpriteUVRect(0.33f, 0.66f, 0.33f, 0.33f);
@@ -266,14 +253,28 @@ int main(int argc, char* argv[])
     spriteSheet.addSpriteUVRect(0.66f, 0.33f, 0.33f, 0.33f);
     spriteSheet.addSpriteUVRect(0.0f, 0.0f, 0.33f, 0.33f);
     spriteSheet.addSpriteUVRect(0.33f, 0.0f, 0.33f, 0.33f);
+    obj.SetSprite(&catSprite);
+    obj.GetSprite()->SetUVRect(spriteSheet.getSpriteUVRect(0));
+    child1.SetSprite(&arrowsGreenSprite);
+    child1.GetTransform().SetPosition(glm::vec3(100.0f, 100.0f, 0.0f));
+    child1.GetTransform().SetScale(glm::vec3(2.0f, 2.0f, 0.0f));
+    obj.addChild(&child1);
+    r.prepareDraw(&obj);
+    obj.GetSprite()->SetUVRect(spriteSheet.getSpriteUVRect(1));
+
+    // SpriteRenderer r(w);
+    // Scene s;
+    // s.rootObj.addChild(obj);
+    // r.draw(s);
+
+    LOG(INFO) << "Init GLEW Complete";
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    LOG(INFO) << "Just before while";
 
-    const int target_fps = 60;
+    const int                       target_fps = 60;
     const std::chrono::milliseconds target_frame_duration(1000 / target_fps);
-    int spriteId = 0;
+    int                             spriteId = 0;
     auto lastTime = std::chrono::high_resolution_clock::now();
     while (!glfwWindowShouldClose(cwindow.GetGLFWwindow()))
     {
@@ -283,12 +284,10 @@ int main(int argc, char* argv[])
         glPolygonMode(GL_BACK, GL_LINE);
 
         obj.GetSprite()->SetUVRect(spriteSheet.getSpriteUVRect(spriteId));
-        //  updateUV(uvData, spriteSheet.getSpriteUVRect(spriteId));
-        //  uvBuffer.SetData(0, sizeof(uvData), uvData);
         obj.GetTransform().SetPosition(
-            glm::vec3(100.0f * spriteId, 100.0f, 0.0f));
-        LOG(INFO) << "Just before draw call";
-        r.draw(objectsToRender);
+            glm::vec3(100.0f * spriteId, 100.0f, 0.0f)
+        );
+        r.draw();
 
         std::chrono::duration<float> elapsedTime =
             std::chrono::high_resolution_clock::now() - lastTime;

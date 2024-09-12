@@ -1,8 +1,8 @@
 #include "vertex_array.h"
 
-#include "easylogging++.h"
 #include "renderer.h"
 #include "vertex_buffer_layout.h"
+#include <cassert>
 #include <cstdint>
 #include <iostream>
 
@@ -14,15 +14,19 @@ VertexArray::VertexArray() : m_lastAttribArrayId(0)
     GLCall(glGenVertexArrays(1, &m_RendererId));
 }
 
-VertexArray::~VertexArray() { GLCall(glDeleteVertexArrays(1, &m_RendererId)); }
+VertexArray::~VertexArray()
+{
 
-void VertexArray::AddBuffer(const VertexBuffer& vb,
-                            const VertexBufferLayout& layout)
+    GLCall(glDeleteVertexArrays(1, &m_RendererId));
+}
+
+void VertexArray::AddBuffer(
+    const VertexBuffer& vb, const VertexBufferLayout& layout
+)
 {
     Bind();
     vb.Bind();
     const auto& elements = layout.GetElements();
-
     m_vertexAttributes[&vb] = m_lastAttribArrayId;
 
     unsigned int offset = 0;
@@ -36,22 +40,29 @@ void VertexArray::AddBuffer(const VertexBuffer& vb,
             GLCall(glVertexAttribIPointer(
                 m_lastAttribArrayId + i, element.count, element.type,
                 layout.GetStride(),
-                reinterpret_cast<const void*>(static_cast<intptr_t>(offset))));
+                reinterpret_cast<const void*>(static_cast<intptr_t>(offset))
+            ));
         }
         else
         {
             GLCall(glVertexAttribPointer(
                 m_lastAttribArrayId + i, element.count, element.type,
                 element.normalized, layout.GetStride(),
-                reinterpret_cast<const void*>(static_cast<intptr_t>(offset))));
+                reinterpret_cast<const void*>(static_cast<intptr_t>(offset))
+            ));
         }
+	
+	if(element.divisor != 0){
+	    GLCall(glVertexAttribDivisor(m_lastAttribArrayId + i, element.divisor));
+	}
         offset +=
             element.count * VertexBufferElement::GetSizeOfType(element.type);
     }
     m_lastAttribArrayId = m_lastAttribArrayId + elements.size();
 }
-void VertexArray::UpdateBuffer(const VertexBuffer& vb,
-                               const VertexBufferLayout& layout)
+void VertexArray::UpdateBuffer(
+    const VertexBuffer& vb, const VertexBufferLayout& layout
+)
 {
     Bind();
     vb.Bind();
@@ -65,14 +76,21 @@ void VertexArray::UpdateBuffer(const VertexBuffer& vb,
         GLCall(glVertexAttribPointer(
             m_vertexAttributes[&vb] + i, element.count, element.type,
             element.normalized, layout.GetStride(),
-            reinterpret_cast<const void*>(static_cast<intptr_t>(offset))));
+            reinterpret_cast<const void*>(static_cast<intptr_t>(offset))
+        ));
         offset +=
             element.count * VertexBufferElement::GetSizeOfType(element.type);
     }
 }
 
-void VertexArray::Bind() const { GLCall(glBindVertexArray(m_RendererId)); }
+void VertexArray::Bind() const
+{
+    GLCall(glBindVertexArray(m_RendererId));
+}
 
-void VertexArray::Unbind() const { GLCall(glBindVertexArray(0)); }
+void VertexArray::Unbind() const
+{
+    GLCall(glBindVertexArray(0));
+}
 
 } // namespace cabbage

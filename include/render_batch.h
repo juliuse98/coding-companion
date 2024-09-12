@@ -1,6 +1,5 @@
 #pragma once
 #include <memory>
-#include <unordered_set>
 #include <vector>
 
 #include "ccobject.h"
@@ -17,23 +16,25 @@ namespace cabbage
 class RenderBatch
 {
   public:
-    RenderBatch(VertexBuffer& vertexBuffer,
-                VertexBufferLayout& vertexBufferLayout)
+    RenderBatch(
+        VertexBuffer* vertexBuffer, VertexBufferLayout* vertexBufferLayout
+    )
+        : m_vertexArray()
     {
-        m_vertexArray.AddBuffer(vertexBuffer, vertexBufferLayout);
-        glVertexAttribDivisor(0, 0);
-        // Prepare buffer layouts
+        m_vertexArray.AddBuffer(*vertexBuffer, *vertexBufferLayout);
+        //  Prepare buffer layouts
         m_uvBufferLayout.Push<float>(2);
-        m_textureSlotBufferLayout.Push<float>(1);
-        m_transformBufferLayout.Push<float>(4);
-        m_transformBufferLayout.Push<float>(4);
-        m_transformBufferLayout.Push<float>(4);
-        m_transformBufferLayout.Push<float>(4);
+        m_textureSlotBufferLayout.Push<float>(1,1);
+        m_transformBufferLayout.Push<float>(4,1);
+        m_transformBufferLayout.Push<float>(4,1);
+        m_transformBufferLayout.Push<float>(4,1);
+        m_transformBufferLayout.Push<float>(4,1);
     };
 
   private:
-    std::vector<coco::CCObject*> m_objects;
-    std::unordered_map<cabbage::Texture*, int> m_textureSlotMap;
+    std::vector<coco::CCObject*>                   m_objects;
+    std::unordered_map<cabbage::Texture*, int>     m_textureSlotMap;
+    std::unordered_map<coco::CCObject*, glm::mat4> m_objectToWorldTransform;
 
     VertexArray m_vertexArray;
 
@@ -45,18 +46,25 @@ class RenderBatch
     VertexBufferLayout m_textureSlotBufferLayout;
     VertexBufferLayout m_transformBufferLayout;
 
-    std::vector<float> m_uvData;
-    std::vector<float> m_textureSlotData;
+    std::vector<float>     m_uvData;
+    std::vector<float>     m_textureSlotData;
     std::vector<glm::mat4> m_transformData;
 
   public:
-    void addCCObject(coco::CCObject* object) { m_objects.push_back(object); };
-    void addCCObject(std::vector<coco::CCObject*> objects)
+    void addCCObject(coco::CCObject* object)
+    {
+        m_objects.push_back(object);
+    };
+    void addCCObject(
+        std::vector<coco::CCObject*>&                   objects,
+        std::unordered_map<coco::CCObject*, glm::mat4>& objectToWorldTransform
+    )
     {
         for (auto it = objects.begin(); it != objects.end(); it++)
         {
             m_objects.push_back((*it));
         }
+        m_objectToWorldTransform = objectToWorldTransform;
     };
 
     void prepare()
@@ -70,48 +78,74 @@ class RenderBatch
         for (auto object = m_objects.begin(); object != m_objects.end();
              object++)
         {
-
             std::array<float, 8> uvD =
                 (*object)->GetSprite()->GetUVRect().toUVArray();
             m_uvData.insert(m_uvData.end(), uvD.begin(), uvD.end());
-            if (m_textureSlotMap.find((*object)->GetTexture()) ==
-                m_textureSlotMap.end())
+            if (m_textureSlotMap.find((*object)->GetTexture())
+                == m_textureSlotMap.end())
             {
-                m_textureSlotMap.insert(
-                    {(*object)->GetTexture(), textureIndex});
+		// TODO: Add updating of texture slots and updating of transforms
+                m_textureSlotMap.insert({(*object)->GetTexture(), textureIndex}
+                );
                 m_textureSlotData.push_back(textureIndex);
                 textureIndex++;
             }
             else
             {
                 m_textureSlotData.push_back(
-                    m_textureSlotMap.find((*object)->GetTexture())->second);
+                    m_textureSlotMap.find((*object)->GetTexture())->second
+                );
             }
             m_transformData.push_back(
-                (*object)->GetTransform().getModelMatrix());
+                m_objectToWorldTransform.find((*object))->second
+            );
             index++;
         }
 
         m_uvBuffer = std::make_unique<VertexBuffer>(
-            m_uvData.data(), sizeof(float) * m_uvData.size());
+            m_uvData.data(), sizeof(float) * m_uvData.size()
+        );
         m_textureSlotBuffer = std::make_unique<VertexBuffer>(
-            m_textureSlotData.data(), sizeof(float) * m_textureSlotData.size());
+            m_textureSlotData.data(), sizeof(float) * m_textureSlotData.size()
+        );
         m_transformBuffer = std::make_unique<VertexBuffer>(
-            m_transformData.data(), sizeof(glm::mat4) * m_transformData.size());
+            m_transformData.data(), sizeof(glm::mat4) * m_transformData.size()
+        );
 
         m_vertexArray.AddBuffer(*m_uvBuffer, m_uvBufferLayout);
-        glVertexAttribDivisor(1, 0);
 
-        m_vertexArray.AddBuffer(*m_textureSlotBuffer,
-                                m_textureSlotBufferLayout);
-        glVertexAttribDivisor(2, 1);
+        m_vertexArray.AddBuffer(
+            *m_textureSlotBuffer, m_textureSlotBufferLayout
+        );
 
         m_vertexArray.AddBuffer(*m_transformBuffer, m_transformBufferLayout);
-        glVertexAttribDivisor(3, 1);
-        glVertexAttribDivisor(4, 1);
-        glVertexAttribDivisor(5, 1);
-        glVertexAttribDivisor(6, 1);
-        LOG(INFO) << "Finish Prepare Batch";
+    }
+    void update()
+    {
+	m_uvData.clear();
+	m_transformData.clear();
+	
+        int index = 0;
+        int textureIndex = 0;
+        for (auto object = m_objects.begin(); object != m_objects.end();
+             object++)
+        {
+            std::array<float, 8> uvD =
+                (*object)->GetSprite()->GetUVRect().toUVArray();
+            m_uvData.insert(m_uvData.end(), uvD.begin(), uvD.end());
+	    // TODO: Add updating of texture slots and updating of transforms
+            m_transformData.push_back(
+                m_objectToWorldTransform.find((*object))->second
+            );
+            index++;
+        }
+
+	m_uvBuffer->Bind();
+	m_uvBuffer->SetData(0, sizeof(float) * m_uvData.size(), m_uvData.data());
+	m_textureSlotBuffer->Bind();
+	m_textureSlotBuffer->SetData(0, sizeof(float) * m_textureSlotData.size(), m_textureSlotData.data());
+	m_transformBuffer->Bind();
+	m_transformBuffer->SetData(0, sizeof(glm::mat4) * m_transformData.size(), m_transformData.data());
     }
     void bind()
     {
@@ -122,6 +156,10 @@ class RenderBatch
             texture->first->bind(texture->second);
         }
     };
+    int objectCount()
+    {
+        return m_objects.size();
+    }
 
     // updateData
     // public bind
