@@ -49,12 +49,10 @@ void makeWindowTransparentAndClickThrough(GLFWwindow* window)
 {
     Display* display = glfwGetX11Display();
     Window   win = glfwGetX11Window(window);
-    Atom opacityAtom = XInternAtom(display, "_NET_WM_WINDOW_OPACITY", False);
+    Atom     opacityAtom = XInternAtom(display, "_NET_WM_WINDOW_OPACITY", False);
+
     unsigned long opacity = (unsigned long)(1.0 * 0xFFFFFFFF);
-    XChangeProperty(
-        display, win, opacityAtom, XA_CARDINAL, 32, PropModeReplace,
-        (unsigned char*)&opacity, 1
-    );
+    XChangeProperty(display, win, opacityAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&opacity, 1);
 
     XRectangle rect;
     rect.x = 0;
@@ -79,17 +77,14 @@ void makeWindowTransparentAndClickThrough(GLFWwindow* window)
     unsigned long  bytes_after;
     unsigned char* prop = NULL;
     if (XGetWindowProperty(
-            display, root, workarea, 0, 4 * sizeof(long), False, XA_CARDINAL,
-            &actual_type, &actual_format, &nitems, &bytes_after, &prop
-        )
-        == Success)
+            display, root, workarea, 0, 4 * sizeof(long), False, XA_CARDINAL, &actual_type, &actual_format, &nitems,
+            &bytes_after, &prop
+        ) == Success)
     {
         if (prop)
         {
             long* workarea_values = (long*)prop;
-            std::cout << "1:" << workarea_values[0]
-                      << "2:" << workarea_values[1]
-                      << "3:" << workarea_values[2]
+            std::cout << "1:" << workarea_values[0] << "2:" << workarea_values[1] << "3:" << workarea_values[2]
                       << "4:" << workarea_values[3] << std::endl;
         }
     }
@@ -117,7 +112,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             // Prevent the window from being minimized
             pPos->flags &= ~SWP_SHOWWINDOW; // Clear the SWP_SHOWWINDOW flag
-            return 0; // Prevent other handlers from processing this message
+            return 0;                       // Prevent other handlers from processing this message
         }
         break;
     }
@@ -131,25 +126,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 void ReapplyWindowStyles(HWND hwnd)
 {
     LONG_PTR style = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
-    SetWindowLongPtr(
-        hwnd, GWL_EXSTYLE,
-        style | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOPMOST
-            | WS_EX_TOOLWINDOW
-    );
+    SetWindowLongPtr(hwnd, GWL_EXSTYLE, style | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOPMOST | WS_EX_TOOLWINDOW);
     SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0xFF, LWA_ALPHA);
-    SetWindowPos(
-        hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE
-    );
+    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 }
 
 void SetTimerForStyles(HWND hwnd)
 {
-    SetTimer(
-        hwnd, 1, 1000,
-        [](HWND hwnd, UINT msg, UINT_PTR idEvent, DWORD dwTime) {
-            ReapplyWindowStyles(hwnd);
-        }
-    );
+    SetTimer(hwnd, 1, 1000, [](HWND hwnd, UINT msg, UINT_PTR idEvent, DWORD dwTime) { ReapplyWindowStyles(hwnd); });
 }
 
 void makeWindowTransparentAndClickThrough(GLFWwindow* window)
@@ -163,9 +147,7 @@ void makeWindowTransparentAndClickThrough(GLFWwindow* window)
     SetTimerForStyles(hwnd);
 
     // Hook the window procedure to intercept messages
-    SetWindowLongPtr(
-        hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WindowProc)
-    );
+    SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WindowProc));
 }
 #endif
 
@@ -235,15 +217,13 @@ int main(int argc, char* argv[])
     stbi_set_flip_vertically_on_load(true);
 
     LOG(INFO) << "Init GLEW Complete";
-    cabbage::Texture* texture1 =
-        cabbage::TextureLoader::load("resources/textures/arrowsRed.png");
+    cabbage::Texture* texture1 = cabbage::TextureLoader::load("resources/textures/arrowsRed.png");
     textures.push_back(texture1);
-    cabbage::Texture* texture2 =
-        cabbage::TextureLoader::load("resources/textures/arrowsGreen.png");
+    cabbage::Texture* texture2 = cabbage::TextureLoader::load("resources/textures/arrowsGreen.png");
     textures.push_back(texture2);
 
-    cabbage::Sprite catSprite(textures[0]);
-    cabbage::Sprite arrowsGreenSprite(textures[1]);
+    cabbage::Sprite      catSprite(textures[0]);
+    cabbage::Sprite      arrowsGreenSprite(textures[1]);
     cabbage::SpriteSheet spriteSheet = cabbage::SpriteSheet(textures.at(0));
     spriteSheet.addSpriteUVRect(0.0f, 0.66f, 0.33f, 0.33f);
     spriteSheet.addSpriteUVRect(0.33f, 0.66f, 0.33f, 0.33f);
@@ -256,16 +236,9 @@ int main(int argc, char* argv[])
     obj.SetSprite(&catSprite);
     obj.GetSprite()->SetUVRect(spriteSheet.getSpriteUVRect(0));
     child1.SetSprite(&arrowsGreenSprite);
-    child1.GetTransform().SetPosition(glm::vec3(100.0f, 100.0f, 0.0f));
-    child1.GetTransform().SetScale(glm::vec3(2.0f, 2.0f, 0.0f));
+    child1.GetTransform().SetPosition(glm::vec3(0, 100, 0));
     obj.addChild(&child1);
     r.prepareDraw(&obj);
-    obj.GetSprite()->SetUVRect(spriteSheet.getSpriteUVRect(1));
-
-    // SpriteRenderer r(w);
-    // Scene s;
-    // s.rootObj.addChild(obj);
-    // r.draw(s);
 
     LOG(INFO) << "Init GLEW Complete";
 
@@ -275,7 +248,7 @@ int main(int argc, char* argv[])
     const int                       target_fps = 60;
     const std::chrono::milliseconds target_frame_duration(1000 / target_fps);
     int                             spriteId = 0;
-    auto lastTime = std::chrono::high_resolution_clock::now();
+    auto                            lastTime = std::chrono::high_resolution_clock::now();
     while (!glfwWindowShouldClose(cwindow.GetGLFWwindow()))
     {
         auto frame_start = std::chrono::high_resolution_clock::now();
@@ -284,13 +257,10 @@ int main(int argc, char* argv[])
         glPolygonMode(GL_BACK, GL_LINE);
 
         obj.GetSprite()->SetUVRect(spriteSheet.getSpriteUVRect(spriteId));
-        obj.GetTransform().SetPosition(
-            glm::vec3(100.0f * spriteId, 100.0f, 0.0f)
-        );
+        obj.GetTransform().SetPosition(glm::vec3(100.0f * spriteId, 100.0f, 0.0f));
         r.draw();
 
-        std::chrono::duration<float> elapsedTime =
-            std::chrono::high_resolution_clock::now() - lastTime;
+        std::chrono::duration<float> elapsedTime = std::chrono::high_resolution_clock::now() - lastTime;
 
         if (elapsedTime.count() >= 0.2f)
         {
@@ -305,9 +275,8 @@ int main(int argc, char* argv[])
 
         glfwSwapBuffers(cwindow.GetGLFWwindow());
         glfwPollEvents();
-        auto frame_end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli> frame_time =
-            frame_end - frame_start;
+        auto                                      frame_end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> frame_time = frame_end - frame_start;
         if (frame_time < target_frame_duration)
         {
             std::this_thread::sleep_for(target_frame_duration - frame_time);

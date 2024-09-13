@@ -27,8 +27,9 @@ AlignAfterOpenBracket: BlockIndent
 # Ensures that the closing parenthesis is aligned with the function call line
 AlwaysBreakAfterDefinitionReturnType: None
 AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: true
 
-BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeBinaryOperators: None
 PenaltyBreakBeforeFirstCallParameter: 0
 
 ConstructorInitializerAllOnOneLineOrOnePerLine: true

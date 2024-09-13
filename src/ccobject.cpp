@@ -6,8 +6,7 @@
 namespace coco
 {
 
-CCObject::CCObject(CCObject* parent)
-    : m_parent(parent), m_enabled(true), m_sprite(nullptr)
+CCObject::CCObject(CCObject* parent) : m_parent(parent), m_enabled(true), m_sprite(nullptr)
 {
     m_transform.SetRotation(glm::vec3(0, 0, 0), true);
     m_transform.SetPosition(glm::vec3(0, 0, 0), true);

@@ -28,37 +28,8 @@ SpriteRenderer::~SpriteRenderer()
 }
 void SpriteRenderer::prepareDraw(coco::CCObject* rootObject)
 {
-    std::vector<coco::CCObject*> allObjects;
-
-    std::unordered_map<coco::CCObject*, glm::mat4> objectToWorldTransform;
-
-    allObjects.push_back(rootObject);
-    objectToWorldTransform.insert({rootObject, rootObject->GetTransform().getModelMatrix()});
-    coco::CCObject* currentObject = rootObject;
-    int             index = 0;
-    while (allObjects.size() > index)
-    {
-        currentObject = allObjects[index];
-        index++;
-        if (currentObject->GetParent() != nullptr)
-        {
-            objectToWorldTransform.insert(
-                {currentObject, objectToWorldTransform.find(currentObject->GetParent())->second
-                                    * currentObject->GetTransform().getModelMatrix()}
-            );
-        }
-        else
-        {
-            objectToWorldTransform.insert({currentObject, currentObject->GetTransform().getModelMatrix()});
-        }
-
-        allObjects.insert(allObjects.end(), currentObject->GetChildren().begin(), currentObject->GetChildren().end());
-    }
-    GLint maxTextureUnits = 0;
-    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
     m_batches.emplace_back(&m_vertexBuffer, &m_vertexBufferLayout);
-    m_batches.at(m_batches.size() - 1).addCCObject(allObjects, objectToWorldTransform);
-    m_batches.at(m_batches.size() - 1).prepare();
+    m_batches.at(m_batches.size() - 1).addCCObject(rootObject);
 }
 void SpriteRenderer::draw()
 {
