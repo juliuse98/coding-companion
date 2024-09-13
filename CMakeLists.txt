@@ -48,7 +48,7 @@ set(SOURCE_FILES
 	deps/easyloggingpp/easylogging++.cc
 )
 
-include_directories(include/ deps/ deps/glfw/include deps/windows/glew/include deps/glm/ deps/easyloggingpp/ deps/nano-signal-slot/  deps/stb/ ${BOOST_INCLUDE_DIRS})
+include_directories(include/ deps/ deps/glfw/include deps/windows/glew/include deps/glm/ deps/easyloggingpp/ deps/nano-signal-slot/  deps/stb/)
 
 add_executable(codingCompanion ${SOURCE_FILES})
 
@@ -73,7 +73,6 @@ if(UNIX)
 		${GLFW_UNIX_DEPENDENCIES}
 		${CMAKE_CURRENT_SOURCE_DIR}/deps/glew/libGLEW.a
 		${CMAKE_CURRENT_SOURCE_DIR}/deps/glfw/libglfw3.a
-		${BOOST_LIBRARIES}
 		X11
 		Xext
 		Xfixes
@@ -87,7 +86,6 @@ elseif(WIN32)
 		opengl32.lib
 		C:/local/glfw/lib-vc2022/glfw3.lib
 		${CMAKE_CURRENT_SOURCE_DIR}/deps/windows/glew/lib/Release/x64/glew32s.lib
-		${BOOST_LIBRARIES}
 		)
 endif()
 
