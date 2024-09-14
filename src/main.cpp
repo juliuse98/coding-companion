@@ -40,6 +40,7 @@ INITIALIZE_EASYLOGGINGPP
 
 #elif defined(_WIN32)
 #include <Windows.h>
+#include <winuser.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 #endif
@@ -69,7 +70,7 @@ void makeWindowTransparentAndClickThrough(GLFWwindow* window)
     Atom   workarea = XInternAtom(display, "_NET_WORKAREA", True);
     if (workarea == None)
     {
-        std::cout << "error retreiving values 1" << std::endl;
+        LOG(ERROR) << "error retreiving values 1";
     }
     Atom           actual_type;
     int            actual_format;
@@ -84,44 +85,39 @@ void makeWindowTransparentAndClickThrough(GLFWwindow* window)
         if (prop)
         {
             long* workarea_values = (long*)prop;
-            std::cout << "1:" << workarea_values[0] << "2:" << workarea_values[1] << "3:" << workarea_values[2]
-                      << "4:" << workarea_values[3] << std::endl;
         }
     }
     else
     {
-        std::cout << "error retreiving values" << std::endl;
+        LOG(ERROR) << "error retreiving values";
     }
 }
 #elif defined(_WIN32)
+
+bool shouldCLose = false;
+
+WNDPROC originalProc = nullptr;
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    // LOG(WARNING) << uMsg << ", " << wParam;
     switch (uMsg)
     {
     case WM_SYSCOMMAND:
         if ((wParam & 0xfff0) == SC_MINIMIZE)
         {
             // Ignore minimize requests
-            return 0;
+            return 0; // Block minimize
         }
-        break;
-
-    case WM_WINDOWPOSCHANGING: {
-        WINDOWPOS* pPos = reinterpret_cast<WINDOWPOS*>(lParam);
-        if (pPos)
+        if ((wParam & 0xfff0) == SC_RESTORE)
         {
-            // Prevent the window from being minimized
-            pPos->flags &= ~SWP_SHOWWINDOW; // Clear the SWP_SHOWWINDOW flag
-            return 0;                       // Prevent other handlers from processing this message
+            // Ignore restore requests
+            return 0; // Block restore
         }
         break;
     }
-
+    return CallWindowProc(originalProc, hwnd, uMsg, wParam, lParam);
     // Handle other cases or pass them to the default window procedure
-    default:
-        return DefWindowProc(hwnd, uMsg, wParam, lParam);
-    }
-    return 0;
 }
 void ReapplyWindowStyles(HWND hwnd)
 {
@@ -143,8 +139,9 @@ void makeWindowTransparentAndClickThrough(GLFWwindow* window)
     // Apply initial window styles
     ReapplyWindowStyles(hwnd);
 
-    // Set a timer to reapply styles periodically
-    SetTimerForStyles(hwnd);
+    originalProc = (WNDPROC)GetWindowLongPtr(hwnd, GWLP_WNDPROC);
+    //  Set a timer to reapply styles periodically
+    //  SetTimerForStyles(hwnd);
 
     // Hook the window procedure to intercept messages
     SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WindowProc));
@@ -186,7 +183,6 @@ int main(int argc, char* argv[])
     cabbage::Window    cwindow;
     cwindow.setWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     cwindow.setWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-
     cwindow.setWindowHint(GLFW_DECORATED, GLFW_FALSE);
     cwindow.setWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
     cwindow.setWindowHint(GLFW_MAXIMIZED, GLFW_FALSE);
@@ -259,9 +255,10 @@ int main(int argc, char* argv[])
 
     const int                       target_fps = 60;
     const std::chrono::milliseconds target_frame_duration(1000 / target_fps);
-    int                             spriteId = 0;
     auto                            lastTime = std::chrono::high_resolution_clock::now();
-    while (!glfwWindowShouldClose(cwindow.GetGLFWwindow()))
+
+    int spriteId = 0;
+    while (!glfwWindowShouldClose(cwindow.GetGLFWwindow()) && !shouldCLose)
     {
         auto frame_start = std::chrono::high_resolution_clock::now();
         glClear(GL_COLOR_BUFFER_BIT);
@@ -281,13 +278,13 @@ int main(int argc, char* argv[])
             {
                 spriteId = 0;
             }
-            std::cout << spriteId << std::endl;
             lastTime = std::chrono::high_resolution_clock::now();
         }
 
         glfwSwapBuffers(cwindow.GetGLFWwindow());
         glfwPollEvents();
-        auto                                      frame_end = std::chrono::high_resolution_clock::now();
+        auto frame_end = std::chrono::high_resolution_clock::now();
+
         std::chrono::duration<double, std::milli> frame_time = frame_end - frame_start;
         if (frame_time < target_frame_duration)
         {
