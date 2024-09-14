@@ -200,6 +200,18 @@ int main(int argc, char* argv[])
     }
     cwindow.setPosition(0, 0);
 
+    GLFWimage icon;
+    icon.pixels = stbi_load("resources/icons/icon_128x128.png", &icon.width, &icon.height, 0, 4);
+    if (icon.pixels)
+    {
+        glfwSetWindowIcon(cwindow.GetGLFWwindow(), 1, &icon);
+        stbi_image_free(icon.pixels);
+    }
+    else
+    {
+        LOG(ERROR) << "Could not load icon";
+    }
+
     LOG(INFO) << "Init GLEW";
     glewInit();
 

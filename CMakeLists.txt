@@ -50,7 +50,12 @@ set(SOURCE_FILES
 
 include_directories(include/ deps/ deps/glfw/include deps/windows/glew/include deps/glm/ deps/easyloggingpp/ deps/nano-signal-slot/  deps/stb/)
 
-add_executable(codingCompanion ${SOURCE_FILES})
+if(WIN32)
+    set(APP_ICON_RESOURCE "${CMAKE_SOURCE_DIR}/resources/icons/executable_icon.rc")
+    add_executable(codingCompanion ${SOURCE_FILES} ${APP_ICON_RESOURCE})
+else()
+    add_executable(codingCompanion ${SOURCE_FILES})
+endif()
 
 add_dependencies(codingCompanion copy_resources)
 add_dependencies(codingCompanion create_compile_commands_link)
