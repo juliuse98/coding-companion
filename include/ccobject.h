@@ -27,6 +27,7 @@ class CCObject
 {
   public:
     CCObject(CCObject* parent = nullptr);
+    ~CCObject();
 
     CCObject(const CCObject&) = delete;
     CCObject& operator=(const CCObject&) = delete;

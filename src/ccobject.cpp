@@ -13,6 +13,10 @@ CCObject::CCObject(CCObject* parent) : m_parent(parent), m_enabled(true), m_spri
     m_transform.SetScale(glm::vec3(1, 1, 1), true);
     m_transform.changed.connect<&CCObject::onTransformChanged>(this);
 }
+CCObject::~CCObject()
+{
+    m_transform.changed.disconnect_all();
+}
 
 cabbage::Texture* CCObject::GetTexture() const
 {
