@@ -38,14 +38,8 @@ class CCObject
     cabbage::Sprite*  GetSprite();
     cabbage::Texture* GetTexture() const;
 
-    void setScene(cabbage::Scene* scene);
-    void addChild(CCObject* object);
-    void SetParent(coco::CCObject* parent)
-
-    {
-        m_dirtyElements.insert(CCObjectDirtyElement::All);
-        m_parent = parent;
-    }
+    void            setScene(cabbage::Scene* scene);
+    void            addChild(CCObject* object);
     coco::CCObject* GetParent()
     {
         return m_parent;
@@ -67,6 +61,12 @@ class CCObject
     }
 
   private:
+    void SetParent(coco::CCObject* parent)
+
+    {
+        m_dirtyElements.insert(CCObjectDirtyElement::All);
+        m_parent = parent;
+    }
     coco::CCObject*    m_parent;
     bool               m_enabled;
     cabbage::Scene*    m_scene;

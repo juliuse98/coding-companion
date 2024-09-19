@@ -1,9 +1,11 @@
+#include "config.h"
+
+// #include "cat_companion.h"
 #include "ccobject.h"
 #include "sprite.h"
 #include "sprite_renderer.h"
 #include "texture.h"
 #include "texture_loader.h"
-#include "vertex_buffer.h"
 #include "window.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -122,7 +124,6 @@ void makeWindowTransparentAndClickThrough(GLFWwindow* window)
 {
     HWND hwnd = glfwGetWin32Window(window);
 
-
     originalProc = (WNDPROC)GetWindowLongPtr(hwnd, GWLP_WNDPROC);
     // Hook the window procedure to intercept messages
     SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WindowProc));
@@ -135,6 +136,8 @@ int main(int argc, char* argv[])
     el::Configurations conf("./easyloggingpp.conf");
     el::Loggers::reconfigureLogger("default", conf);
     el::Loggers::reconfigureAllLoggers(conf);
+
+    coco::Config::getInstance().load("cc-config.json");
     LOG(INFO) << "Start Init";
     if (!glfwInit())
     {
@@ -184,9 +187,13 @@ int main(int argc, char* argv[])
 
     coco::CCObject rootObj;
     coco::CCObject obj;
-    coco::CCObject child1;
+    // coco::CCObject child1;
+
+    //    coco::CatCompanion cat;
+    //    rootObj.addChild(&cat);
+
     rootObj.addChild(&obj);
-    obj.addChild(&child1);
+    // obj.addChild(&child1);
     {
 
         cabbage::SpriteRenderer        r;
@@ -200,8 +207,8 @@ int main(int argc, char* argv[])
         cabbage::Texture* texture2 = cabbage::TextureLoader::load("resources/textures/arrowsGreen.png");
         textures.push_back(texture2);
 
-        cabbage::Sprite      catSprite(textures[0]);
-        cabbage::Sprite      arrowsGreenSprite(textures[1]);
+        cabbage::Sprite catSprite(textures[coco::Config::getInstance().getValue<int>("textureIndex", 0)]);
+        // cabbage::Sprite      arrowsGreenSprite(textures[1]);
         cabbage::SpriteSheet spriteSheet = cabbage::SpriteSheet(textures.at(0));
         spriteSheet.addSpriteUVRect(0.0f, 0.66f, 0.33f, 0.33f);
         spriteSheet.addSpriteUVRect(0.33f, 0.66f, 0.33f, 0.33f);
@@ -213,9 +220,9 @@ int main(int argc, char* argv[])
         spriteSheet.addSpriteUVRect(0.33f, 0.0f, 0.33f, 0.33f);
         obj.SetSprite(&catSprite);
         obj.GetSprite()->SetUVRect(spriteSheet.getSpriteUVRect(0));
-        child1.SetSprite(&arrowsGreenSprite);
-        child1.GetTransform().SetPosition(glm::vec3(0, 100, 0));
-        obj.addChild(&child1);
+        // child1.SetSprite(&arrowsGreenSprite);
+        // child1.GetTransform().SetPosition(glm::vec3(0, 100, 0));
+        // obj.addChild(&child1);
         r.prepareDraw(&rootObj);
 
         LOG(INFO) << "Init GLEW Complete";
@@ -223,9 +230,11 @@ int main(int argc, char* argv[])
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        const int                       target_fps = 60;
+        const int target_fps = coco::Config::getInstance().getValue<int>("fpsLimit", 60);
+
         const std::chrono::milliseconds target_frame_duration(1000 / target_fps);
-        auto                            lastTime = std::chrono::high_resolution_clock::now();
+
+        auto lastTime = std::chrono::high_resolution_clock::now();
 
         int spriteId = 0;
         while (!glfwWindowShouldClose(cwindow.GetGLFWwindow()))
@@ -243,12 +252,12 @@ int main(int argc, char* argv[])
 
             if (elapsedTime.count() >= 0.2f)
             {
-            spriteId++;
-            if (spriteId > 7)
-            {
-            spriteId = 0;
-            }
-            lastTime = std::chrono::high_resolution_clock::now();
+                spriteId++;
+                if (spriteId > 7)
+                {
+                    spriteId = 0;
+                }
+                lastTime = std::chrono::high_resolution_clock::now();
             }
 
             glfwSwapBuffers(cwindow.GetGLFWwindow());
@@ -258,7 +267,7 @@ int main(int argc, char* argv[])
             std::chrono::duration<double, std::milli> frame_time = frame_end - frame_start;
             if (frame_time < target_frame_duration)
             {
-            std::this_thread::sleep_for(target_frame_duration - frame_time);
+                std::this_thread::sleep_for(target_frame_duration - frame_time);
             }
         }
     }

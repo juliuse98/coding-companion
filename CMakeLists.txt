@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
+option(ENABLE_CONSOLE "Enable console window in the application" ON)
+
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
 include(CopyResources)
@@ -48,19 +50,19 @@ set(SOURCE_FILES
 	deps/easyloggingpp/easylogging++.cc
 )
 
-include_directories(include/ deps/ deps/glfw/include deps/windows/glew/include deps/glm/ deps/easyloggingpp/ deps/nano-signal-slot/  deps/stb/)
+include_directories(include/ deps/ deps/glfw/include deps/windows/glew/include deps/glm/ deps/easyloggingpp/ deps/nano-signal-slot/ deps/json/include/  deps/stb/)
 
 if(WIN32)
     set(APP_ICON_RESOURCE "${CMAKE_SOURCE_DIR}/resources/icons/executable_icon.rc")
     add_executable(codingCompanion ${SOURCE_FILES} ${APP_ICON_RESOURCE})
-    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    if(NOT ENABLE_CONSOLE)
     	set_target_properties(codingCompanion PROPERTIES
     	LINK_FLAGS "-Xlinker /SUBSYSTEM:WINDOWS -Xlinker /ENTRY:mainCRTStartup"
     	)
     	set_target_properties(codingCompanion PROPERTIES 
     	WIN31_EXECUTABLE ON
     	)
-	endif()
+    endif()
 else()
     add_executable(codingCompanion ${SOURCE_FILES})
 endif()

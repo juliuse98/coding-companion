@@ -4,3 +4,6 @@
 [submodule "deps/nano-signal-slot"]
 	path = deps/nano-signal-slot
 	url = https://github.com/NoAvailableAlias/nano-signal-slot.git
+[submodule "deps/json"]
+	path = deps/json
+	url = https://github.com/nlohmann/json.git
