@@ -97,7 +97,7 @@ This is an example of how to list things you need to use the software and how to
 
   Or if you forgot to run the `--recurse-submodules` argument while cloning you can run this command in the cloned repository folder:
   ```sh
-  git submodules update --init --recursive
+  git submodule update --init --recursive
 
   ```
 * Clangd
