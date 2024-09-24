@@ -1,7 +1,10 @@
+#include "companion_factory.h"
 #include "config.h"
 
 // #include "cat_companion.h"
 #include "ccobject.h"
+#include "companion.h"
+#include "graphics_manager.h"
 #include "sprite.h"
 #include "sprite_renderer.h"
 #include "texture.h"
@@ -185,44 +188,26 @@ int main(int argc, char* argv[])
     LOG(INFO) << "Init GLEW Complete";
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-    coco::CCObject rootObj;
-    coco::CCObject obj;
+    cabbage::GraphicsManager graphicsManager;
+
+    coco::CCObject  rootObj;
+    coco::Companion companion;
+    stbi_set_flip_vertically_on_load(true);
+    coco::CompanionFactory::loadCompanion(companion, "resources/companions/cat_companion.json", graphicsManager);
+
     // coco::CCObject child1;
 
     //    coco::CatCompanion cat;
     //    rootObj.addChild(&cat);
 
-    rootObj.addChild(&obj);
+    rootObj.addChild(&companion);
     // obj.addChild(&child1);
     {
 
-        cabbage::SpriteRenderer        r;
-        std::vector<cabbage::Texture*> textures;
-
-        stbi_set_flip_vertically_on_load(true);
+        cabbage::SpriteRenderer r;
 
         LOG(INFO) << "Init GLEW Complete";
-        cabbage::Texture* texture1 = cabbage::TextureLoader::load("resources/textures/arrowsRed.png");
-        textures.push_back(texture1);
-        cabbage::Texture* texture2 = cabbage::TextureLoader::load("resources/textures/arrowsGreen.png");
-        textures.push_back(texture2);
 
-        cabbage::Sprite catSprite(textures[coco::Config::getInstance().getValue<int>("textureIndex", 0)]);
-        // cabbage::Sprite      arrowsGreenSprite(textures[1]);
-        cabbage::SpriteSheet spriteSheet = cabbage::SpriteSheet(textures.at(0));
-        spriteSheet.addSpriteUVRect(0.0f, 0.66f, 0.33f, 0.33f);
-        spriteSheet.addSpriteUVRect(0.33f, 0.66f, 0.33f, 0.33f);
-        spriteSheet.addSpriteUVRect(0.66f, 0.66f, 0.33f, 0.33f);
-        spriteSheet.addSpriteUVRect(0.0f, 0.33f, 0.33f, 0.33f);
-        spriteSheet.addSpriteUVRect(0.33f, 0.33f, 0.33f, 0.33f);
-        spriteSheet.addSpriteUVRect(0.66f, 0.33f, 0.33f, 0.33f);
-        spriteSheet.addSpriteUVRect(0.0f, 0.0f, 0.33f, 0.33f);
-        spriteSheet.addSpriteUVRect(0.33f, 0.0f, 0.33f, 0.33f);
-        obj.SetSprite(&catSprite);
-        obj.GetSprite()->SetUVRect(spriteSheet.getSpriteUVRect(0));
-        // child1.SetSprite(&arrowsGreenSprite);
-        // child1.GetTransform().SetPosition(glm::vec3(0, 100, 0));
-        // obj.addChild(&child1);
         r.prepareDraw(&rootObj);
 
         LOG(INFO) << "Init GLEW Complete";
@@ -244,16 +229,15 @@ int main(int argc, char* argv[])
             glPolygonMode(GL_FRONT, GL_FILL);
             glPolygonMode(GL_BACK, GL_LINE);
 
-            obj.GetSprite()->SetUVRect(spriteSheet.getSpriteUVRect(spriteId));
-            obj.GetTransform().SetPosition(glm::vec3(100.0f * spriteId, 100.0f, 0.0f));
             r.draw();
+            companion.SetSprite(graphicsManager.getSpriteSheet(companion.GetName(), "default")->getSprite(spriteId));
 
             std::chrono::duration<float> elapsedTime = std::chrono::high_resolution_clock::now() - lastTime;
 
             if (elapsedTime.count() >= 0.2f)
             {
                 spriteId++;
-                if (spriteId > 7)
+                if (spriteId > graphicsManager.getSpriteSheet(companion.GetName(), "default")->SpriteCount() - 1)
                 {
                     spriteId = 0;
                 }

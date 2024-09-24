@@ -27,7 +27,7 @@ class Config
         std::ifstream file(filePath);
         if (file.is_open())
         {
-            LOG(WARNING) << "Using config file: " << filePath;
+            LOG(INFO) << "Using config file: " << filePath;
             file >> configData;
         }
         else

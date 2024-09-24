@@ -1,13 +1,15 @@
 #pragma once
 
 #include "texture.h"
+#include <string>
 
-namespace cabbage {
+namespace cabbage
+{
 
-	class TextureLoader {
-	public:
-		static Texture* load(char const* filename);
-		
-	};
+class TextureLoader
+{
+  public:
+    static Texture* load(const std::string& filename);
+};
 
-}
+} // namespace cabbage

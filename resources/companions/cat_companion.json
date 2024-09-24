@@ -1,0 +1,78 @@
+{
+	"name": "Cat",
+	"textures": [
+		{
+			"name": "cat_texture_1",
+			"filePath": "cat_companion.png"
+		}
+	],
+	"spriteSheets": [
+		{
+			"name": "default",
+			"texture": "cat_texture_1",
+			"spriteRects": {
+				"0": {
+					"x": 0,
+					"y": 0,
+					"width": 100,
+					"height": 100
+				},
+				"1": {
+					"x": 16,
+					"y": 0,
+					"width": 16,
+					"height": 16
+				},
+				"2": {
+					"x": 0,
+					"y": 16,
+					"width": 16,
+					"height": 16
+				},
+				"3": {
+					"x": 16,
+					"y": 16,
+					"width": 16,
+					"height": 16
+				}
+			}
+		}
+	],
+	"animations": [
+		{
+			"name": "sleeping",
+			"looping": true,
+			"autoplay": false,
+			"frames": [
+				{
+					"id": 0,
+					"spriteSheet": "default",
+					"spriteId": 0,
+					"duration": 500
+				},
+				{
+					"id": 1,
+					"spriteSheet": "default",
+					"spriteId": 1,
+					"duration": 500
+				},
+				{
+					"id": 2,
+					"spriteSheet": "default",
+					"spriteId": 2,
+					"duration": 500
+				},
+				{
+					"id": 3,
+					"spriteSheet": "default",
+					"spriteId": 3,
+					"duration": 500
+				}
+			]
+		}
+	],
+	"defaultSprite": {
+		"spriteSheet": "default",
+		"spriteId": 0
+	}
+}

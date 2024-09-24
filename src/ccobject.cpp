@@ -18,10 +18,6 @@ CCObject::~CCObject()
     m_transform.changed.disconnect_all();
 }
 
-cabbage::Texture* CCObject::GetTexture() const
-{
-    return m_sprite->GetTexutre();
-}
 void CCObject::SetSprite(cabbage::Sprite* sprite)
 {
     // if (m_sprite->GetTexutre() != sprite->GetTexutre())

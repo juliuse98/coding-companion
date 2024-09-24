@@ -3,28 +3,14 @@
 #include <cassert>
 #include <vector>
 
-namespace cabbage {
+namespace cabbage
+{
 
-	SpriteSheet::SpriteSheet(Texture* texture)
-	: m_texture(texture)
-	, m_spriteUVRects(std::vector<SpriteUVRect>())
-	{}
-
-	SpriteSheet::SpriteSheet(Texture* texutre, std::vector<SpriteUVRect>& spriteUVRects)
-	: m_texture(texutre)
-	, m_spriteUVRects(spriteUVRects)
-	{}
-
-	SpriteUVRect SpriteSheet::getSpriteUVRect(unsigned int index)
-	{
-		assert(index < m_spriteUVRects.size());
-		return m_spriteUVRects.at(index);
-	}
-
-
-	void SpriteSheet::addSpriteUVRect(float u, float v, float width, float height)
-	{
-		m_spriteUVRects.push_back(SpriteUVRect(u, v, width, height));
-	}
-
+SpriteSheet::SpriteSheet(Texture* texture, std::vector<SpriteUVRect>& spriteUVRects) : m_texture(texture)
+{
+    for (auto spriteUVRect : spriteUVRects)
+    {
+        m_sprites.emplace_back(spriteUVRect, texture);
+    }
 }
+} // namespace cabbage

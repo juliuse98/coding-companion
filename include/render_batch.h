@@ -102,11 +102,11 @@ class RenderBatch
 
                 //~~<>~~<>~~~<>~~~<>~~~~<+>~~<[ textureSlot ]>~~<+>~~~~<>~~~<>~~~<>~~<>~~//
                 int  textureSlotIndex = 0;
-                auto it = m_textureSlotMap.find(currentObject->GetTexture());
+                auto it = m_textureSlotMap.find(currentObject->GetSprite()->GetTexutre());
                 if (it == m_textureSlotMap.end())
                 {
                     textureSlotIndex = m_textureSlotMap.size();
-                    m_textureSlotMap.insert({currentObject->GetTexture(), textureSlotIndex});
+                    m_textureSlotMap.insert({currentObject->GetSprite()->GetTexutre(), textureSlotIndex});
                 }
                 else
                 {
@@ -155,7 +155,8 @@ class RenderBatch
     };
     int objectCount()
     {
-        return 15;
+        // TODO: implement this correctly
+        return 2;
     }
 };
 

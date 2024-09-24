@@ -34,9 +34,8 @@ class CCObject
     CCObject(CCObject&&) = delete;
     CCObject& operator=(CCObject&&) = delete;
 
-    void              SetSprite(cabbage::Sprite* sprite);
-    cabbage::Sprite*  GetSprite();
-    cabbage::Texture* GetTexture() const;
+    void             SetSprite(cabbage::Sprite* sprite);
+    cabbage::Sprite* GetSprite();
 
     void            setScene(cabbage::Scene* scene);
     void            addChild(CCObject* object);
