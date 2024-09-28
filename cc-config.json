@@ -1,4 +1,5 @@
 {
-    "fps_limit": 60,
-    "textureIndex": 1
+	"fps_limit": 60,
+	"textureIndex": 1,
+	"companionScale": 300
 }

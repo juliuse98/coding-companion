@@ -1,14 +1,11 @@
 #include "companion_factory.h"
 #include "config.h"
 
-// #include "cat_companion.h"
 #include "ccobject.h"
 #include "companion.h"
 #include "graphics_manager.h"
 #include "sprite.h"
 #include "sprite_renderer.h"
-#include "texture.h"
-#include "texture_loader.h"
 #include "window.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -162,6 +159,7 @@ int main(int argc, char* argv[])
     cwindow.setWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_FALSE);
     cwindow.setWindowHint(GLFW_MOUSE_PASSTHROUGH, GLFW_TRUE);
     std::string windowTitle = "Coding Companion";
+    LOG(INFO) << "Monitor Size: " << mode->width << "x" << mode->height;
     if (!cwindow.init(mode->width - 1, mode->height - 1, windowTitle))
     {
         LOG(INFO) << "GLFW cannot open window!";
@@ -193,18 +191,18 @@ int main(int argc, char* argv[])
     coco::CCObject  rootObj;
     coco::Companion companion;
     stbi_set_flip_vertically_on_load(true);
+    int width, height;
+    cwindow.GetSize(width, height);
+    LOG(INFO) << "CWINDOW Size:" << width << "x" << height;
     coco::CompanionFactory::loadCompanion(companion, "resources/companions/cat_companion.json", graphicsManager);
-
-    // coco::CCObject child1;
-
-    //    coco::CatCompanion cat;
-    //    rootObj.addChild(&cat);
+    const int companionSize = coco::Config::getInstance().getValue<float>("companionSize", 100.0f);
+    companion.GetTransform().SetScale({companionSize, companionSize, 0});
+    companion.GetTransform().SetPosition({width - companionSize, height - companionSize, 0});
 
     rootObj.addChild(&companion);
-    // obj.addChild(&child1);
     {
 
-        cabbage::SpriteRenderer r;
+        cabbage::SpriteRenderer r(&cwindow);
 
         LOG(INFO) << "Init GLEW Complete";
 
@@ -234,7 +232,7 @@ int main(int argc, char* argv[])
 
             std::chrono::duration<float> elapsedTime = std::chrono::high_resolution_clock::now() - lastTime;
 
-            if (elapsedTime.count() >= 0.2f)
+            if (elapsedTime.count() >= 0.5f)
             {
                 spriteId++;
                 if (spriteId > graphicsManager.getSpriteSheet(companion.GetName(), "default")->SpriteCount() - 1)

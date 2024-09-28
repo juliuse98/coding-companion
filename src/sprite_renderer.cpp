@@ -7,15 +7,17 @@
 #include "ccobject.h"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "render_batch.h"
+#include "window.h"
 
 namespace cabbage
 {
 
-SpriteRenderer::SpriteRenderer()
-    : m_indexBuffer(m_indices, 6)
+SpriteRenderer::SpriteRenderer(cabbage::Window* window)
+    : m_window(window)
+    , m_indexBuffer(m_indices, 6)
     , m_vertexBuffer(m_vertices, sizeof(glm::vec3) * 4)
     , m_defaultShader("resources/shaders/sprite.shader")
-    , m_projection(glm::ortho(0.0f, 1920.0f, 1000.0f, 0.0f, -1.0f, 1.0f))
+    , m_projection(glm::ortho(0.0f, (float)(window->GetWidth()), (float)(window->GetHeight()), 0.0f, -1.0f, 1.0f))
 {
     // Prepare Shader
     m_defaultShader.Bind();

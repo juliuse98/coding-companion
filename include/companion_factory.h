@@ -40,42 +40,28 @@ loadCompanion(coco::Companion& companion, const std::string& filePath, cabbage::
 
     CCLOG("Start loadCompanion , " << filePath);
     std::ifstream file(filePath);
-    CCLOG("After ifstream , " << filePath);
 
     json companionData;
 
     if (file.is_open())
     {
         file >> companionData;
-        CCLOG("file.is_open()" << companionData["name"]);
     }
     std::string companionName = companionData["name"];
-    CCLOG("getValue" << companionName);
     companion.SetName(companionName);
-    CCLOG("setName" << companionData.contains("textures"));
-    CCLOG("setName" << companionData.at("textures")[0].at("name"));
     for (auto textureData : companionData["textures"])
     {
         const std::string name = textureData.at("name").get<std::string>();
-        CCLOG("getValue" << name);
 
         const std::string filePath = textureData.at("filePath").get<std::string>();
-        CCLOG("getValue" << name);
         graphicsManager.loadTexture(name, filePath);
-        CCLOG("getValue" << name);
     }
-    CCLOG("getValue");
     for (auto spriteSheetData : companionData["spriteSheets"])
     {
         std::string spriteSheetName = spriteSheetData.at("name").get<std::string>();
-        CCLOG("getValue HHHAAAAA");
-
         std::string textureName = spriteSheetData.at("texture").get<std::string>();
-        CCLOG("getValue HHHAAAAA");
 
         std::vector<cabbage::SpriteRect> spriteRects;
-        CCLOG("getValue HHHAAAAA");
-        CCLOG("getValue HHHAAAAA " << spriteSheetData);
 
         for (auto spriteRectData : spriteSheetData["spriteRects"])
         {
@@ -86,11 +72,8 @@ loadCompanion(coco::Companion& companion, const std::string& filePath, cabbage::
             spriteRects.emplace_back(x, y, width, height);
         }
 
-        CCLOG("getValue HHHAAAAA End spriteRects, Size of spriteRects: " << spriteRects.size());
         graphicsManager.createSpriteSheet(companionName, spriteSheetName, textureName, spriteRects);
-        CCLOG("getValue HHHAAAAA End Loop");
     }
-    CCLOG("getValue HHHAAAAA");
     std::string defaultSpriteSheetName = companionData["defaultSprite"]["spriteSheet"].get<std::string>();
 
     int spriteId = companionData["defaultSprite"]["spriteId"].get<int>();
