@@ -1,10 +1,17 @@
 #pragma once
 
-#include <easylogging++.h>
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
+
+#define CONFIG_LOGGING
+
+#ifdef CONFIG_LOGGING
+#include <easylogging++.h>
+#else
+#define LOG(x)
+#endif
 
 namespace coco
 {
@@ -55,6 +62,7 @@ class Config
         }
         else
         {
+            LOG(WARNING) << "Could not find key: " << key << ". Using default value: " << defaultValue;
             return defaultValue;
         }
     }

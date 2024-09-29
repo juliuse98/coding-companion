@@ -62,7 +62,6 @@ loadCompanion(coco::Companion& companion, const std::string& filePath, cabbage::
         std::string textureName = spriteSheetData.at("texture").get<std::string>();
 
         std::vector<cabbage::SpriteRect> spriteRects;
-
         for (auto spriteRectData : spriteSheetData["spriteRects"])
         {
             int x = spriteRectData["x"].get<int>();
@@ -79,6 +78,22 @@ loadCompanion(coco::Companion& companion, const std::string& filePath, cabbage::
     int spriteId = companionData["defaultSprite"]["spriteId"].get<int>();
 
     companion.SetSprite(graphicsManager.getSpriteSheet(companionName, defaultSpriteSheetName)->getSprite(spriteId));
+
+    for (auto animationData : companionData["animations"])
+    {
+        std::string                 animationName = animationData["name"].get<std::string>();
+        std::vector<cabbage::Frame> frames;
+        for (auto frameData : animationData["frames"])
+        {
+            const int              id = frameData["id"].get<int>();
+            const cabbage::Sprite* sprite =
+                graphicsManager.getSpriteSheet(companionName, animationData["name"].get<std::string>())
+                    ->getSprite(frameData["spriteId"].get<int>());
+            const int duration = frameData["id"].get<int>();
+            frames.emplace_back(id, sprite, duration);
+        }
+        companion.addAnimation(animationName, frames);
+    }
 }
 } // namespace CompanionFactory
 
