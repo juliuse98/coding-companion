@@ -4,6 +4,10 @@
 		{
 			"name": "cat_texture_1",
 			"filePath": "cat_companion.png"
+		},
+		{
+			"name": "cat_texture_awake",
+			"filePath": "cat_companion_awake.png"
 		}
 	],
 	"spriteSheets": [
@@ -19,6 +23,48 @@
 				},
 				"1": {
 					"x": 64,
+					"y": 0,
+					"width": 64,
+					"height": 64
+				}
+			}
+		},
+		{
+			"name": "awake",
+			"texture": "cat_texture_awake",
+			"spriteRects": {
+				"0": {
+					"x": 0,
+					"y": 0,
+					"width": 64,
+					"height": 64
+				},
+				"1": {
+					"x": 64,
+					"y": 0,
+					"width": 64,
+					"height": 64
+				},
+				"2": {
+					"x": 128,
+					"y": 0,
+					"width": 64,
+					"height": 64
+				},
+				"3": {
+					"x": 192,
+					"y": 0,
+					"width": 64,
+					"height": 64
+				},
+				"4": {
+					"x": 256,
+					"y": 0,
+					"width": 64,
+					"height": 64
+				},
+				"5": {
+					"x": 320,
 					"y": 0,
 					"width": 64,
 					"height": 64
@@ -55,6 +101,83 @@
 					"spriteSheet": "default",
 					"spriteId": 1,
 					"duration": 3000
+				}
+			]
+		},
+		{
+			"name": "awake",
+			"frames": [
+				{
+					"id": 0,
+					"spriteSheet": "awake",
+					"spriteId": 0,
+					"duration": 300
+				},
+				{
+					"id": 1,
+					"spriteSheet": "awake",
+					"spriteId": 1,
+					"duration": 300
+				},
+				{
+					"id": 2,
+					"spriteSheet": "awake",
+					"spriteId": 2,
+					"duration": 300
+				},
+				{
+					"id": 3,
+					"spriteSheet": "awake",
+					"spriteId": 3,
+					"duration": 300
+				},
+				{
+					"id": 4,
+					"spriteSheet": "awake",
+					"spriteId": 4,
+					"duration": 300
+				},
+				{
+					"id": 5,
+					"spriteSheet": "awake",
+					"spriteId": 5,
+					"duration": 300
+				},
+				{
+					"id": 6,
+					"spriteSheet": "awake",
+					"spriteId": 4,
+					"duration": 300
+				},
+				{
+					"id": 7,
+					"spriteSheet": "awake",
+					"spriteId": 3,
+					"duration": 300
+				},
+				{
+					"id": 8,
+					"spriteSheet": "awake",
+					"spriteId": 3,
+					"duration": 300
+				},
+				{
+					"id": 9,
+					"spriteSheet": "awake",
+					"spriteId": 2,
+					"duration": 300
+				},
+				{
+					"id": 10,
+					"spriteSheet": "awake",
+					"spriteId": 1,
+					"duration": 300
+				},
+				{
+					"id": 11,
+					"spriteSheet": "awake",
+					"spriteId": 0,
+					"duration": 300
 				}
 			]
 		}
