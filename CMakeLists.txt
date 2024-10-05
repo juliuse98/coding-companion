@@ -27,6 +27,7 @@ set(SOURCE_FILES
 	src/ccobject.cpp
 	src/window.cpp
 	src/sprite_renderer.cpp
+	src/animation_controller.cpp
 
 	include/environment.h
 	include/sprite.h

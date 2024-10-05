@@ -1,6 +1,7 @@
 #pragma once
 
 #include "texture.h"
+#include "time_controller.h"
 #include "transform.h"
 #include <nano_signal_slot.hpp>
 #include <unordered_set>
@@ -23,7 +24,7 @@ enum class CCObjectDirtyElement
     Transform
 };
 
-class CCObject
+class CCObject : public TimeAwareObject
 {
   public:
     CCObject(CCObject* parent = nullptr);

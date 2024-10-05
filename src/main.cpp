@@ -6,6 +6,7 @@
 #include "graphics_manager.h"
 #include "sprite.h"
 #include "sprite_renderer.h"
+#include "time_controller.h"
 #include "window.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -187,15 +188,19 @@ int main(int argc, char* argv[])
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     cabbage::GraphicsManager graphicsManager;
+    coco::TimeController     timeController;
 
-    coco::CCObject  rootObj;
+    coco::Companion rootObj;
     coco::Companion companion;
+    timeController.addObject(companion);
     stbi_set_flip_vertically_on_load(true);
     int width, height;
     cwindow.GetSize(width, height);
     LOG(INFO) << "CWINDOW Size:" << width << "x" << height;
     coco::CompanionFactory::loadCompanion(companion, "resources/companions/cat_companion.json", graphicsManager);
+    companion.PlayAnimation("sleeping");
     const int companionSize = coco::Config::getInstance().getValue<float>("companionSize", 100.0f);
+    const int TICKS_PER_SECOND = coco::Config::getInstance().getValue<int>("ticksPerSecond", 30);
     companion.GetTransform().SetScale({companionSize, companionSize, 0});
     companion.GetTransform().SetPosition({width - companionSize, height - companionSize, 0});
 
@@ -228,17 +233,12 @@ int main(int argc, char* argv[])
             glPolygonMode(GL_BACK, GL_LINE);
 
             r.draw();
-            companion.SetSprite(graphicsManager.getSpriteSheet(companion.GetName(), "default")->getSprite(spriteId));
 
             std::chrono::duration<float> elapsedTime = std::chrono::high_resolution_clock::now() - lastTime;
 
-            if (elapsedTime.count() >= 0.5f)
+            if (elapsedTime.count() >= float(1.0f / TICKS_PER_SECOND))
             {
-                spriteId++;
-                if (spriteId > graphicsManager.getSpriteSheet(companion.GetName(), "default")->SpriteCount() - 1)
-                {
-                    spriteId = 0;
-                }
+                timeController.Update(elapsedTime.count());
                 lastTime = std::chrono::high_resolution_clock::now();
             }
 
