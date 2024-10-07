@@ -1,6 +1,7 @@
 #pragma once
 
 #include "animation.h"
+#include <optional>
 #include <vector>
 namespace coco
 {
@@ -13,6 +14,9 @@ class AnimationController
     void PlayAnimation(const std::string& animationName);
     void StopAnimation();
     void update(float deltaTime);
+
+    std::optional<std::string> GetAnimation();
+    Nano::Signal<void()>       animationEnd;
 
   private:
     coco::Companion* m_companion;

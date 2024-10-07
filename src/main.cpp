@@ -198,9 +198,9 @@ int main(int argc, char* argv[])
     cwindow.GetSize(width, height);
     LOG(INFO) << "CWINDOW Size:" << width << "x" << height;
     coco::CompanionFactory::loadCompanion(companion, "resources/companions/cat_companion.json", graphicsManager);
-    companion.PlayAnimation("awake");
+    // companion.PlayAnimation("awake");
     const int companionSize = coco::Config::getInstance().getValue<float>("companionSize", 100.0f);
-    const int TICKS_PER_SECOND = coco::Config::getInstance().getValue<int>("ticksPerSecond", 30);
+    const int TICKS_PER_SECOND = coco::Config::getInstance().getValue<int>("ticksPerSecond", 32);
     companion.GetTransform().SetScale({companionSize, companionSize, 0});
     companion.GetTransform().SetPosition({width - companionSize, height - companionSize, 0});
 
