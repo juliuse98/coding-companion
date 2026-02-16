@@ -28,6 +28,7 @@ set(SOURCE_FILES
 	src/window.cpp
 	src/sprite_renderer.cpp
 	src/animation_controller.cpp
+	src/state_machine.cpp
 
 	include/environment.h
 	include/sprite.h
@@ -76,8 +77,8 @@ add_compile_definitions(GLEW_STATIC)
 if(UNIX)
 	message("Configuring for UNIX")
 
-	set(CMAKE_C_COMPILER gcc-9)
-	set(CMAKE_CXX_COMPILER g++-9)
+	set(CMAKE_C_COMPILER gcc)
+	set(CMAKE_CXX_COMPILER g++)
 
 	set(GLFW_UNIX_DEPENDENCIES dl pthread)
 

@@ -131,6 +131,11 @@ void makeWindowTransparentAndClickThrough(GLFWwindow* window)
 }
 #endif
 
+static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
+{
+    LOG(INFO) << "Mouse Position: " << xpos << ", " << ypos;
+}
+
 int main(int argc, char* argv[])
 {
     START_EASYLOGGINGPP(argc, argv);
@@ -166,6 +171,7 @@ int main(int argc, char* argv[])
         LOG(INFO) << "GLFW cannot open window!";
     }
     cwindow.setPosition(0, 0);
+    glfwSetCursorPosCallback(cwindow.GetGLFWwindow(), cursorPositionCallback);
 
     GLFWimage icon;
     icon.pixels = stbi_load("resources/icons/icon_128x128.png", &icon.width, &icon.height, 0, 4);
@@ -196,9 +202,8 @@ int main(int argc, char* argv[])
     stbi_set_flip_vertically_on_load(true);
     int width, height;
     cwindow.GetSize(width, height);
-    LOG(INFO) << "CWINDOW Size:" << width << "x" << height;
+    LOG(INFO) << "CWINDOW Size: " << width << "x" << height;
     coco::CompanionFactory::loadCompanion(companion, "resources/companions/cat_companion.json", graphicsManager);
-    // companion.PlayAnimation("awake");
     const int companionSize = coco::Config::getInstance().getValue<float>("companionSize", 100.0f);
     const int TICKS_PER_SECOND = coco::Config::getInstance().getValue<int>("ticksPerSecond", 32);
     companion.GetTransform().SetScale({companionSize, companionSize, 0});

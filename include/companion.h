@@ -2,9 +2,11 @@
 
 #include "animation.h"
 #include "ccobject.h"
+#include "state_machine.h"
 #include "graphics_manager.h"
 #include <animation_controller.h>
 #include <easylogging++.h>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 namespace coco
@@ -18,9 +20,17 @@ enum class CompanionState
 class Companion : public CCObject
 {
   public:
-    Companion() : m_animationController(this), currentState(CompanionState::PEEKING)
+    
+  public:
+    Companion() : m_animationController(std::make_unique<coco::AnimationController>(this)), currentState(CompanionState::PEEKING)
     {
-        m_animationController.animationEnd.connect<&Companion::onAnimationEnd>(this);
+        m_animationController->animationEnd.connect<&Companion::onAnimationEnd>(this);
+        
+        StateAwake* awake = new StateAwake(this,1);
+        StateSleeping* sleeping = new StateSleeping(this,2);
+        sleeping->nextState = awake;
+        awake->nextState = sleeping;
+        m_stateMachine->currentState = sleeping;
     };
     void SetName(const std::string& name)
     {
@@ -30,46 +40,50 @@ class Companion : public CCObject
     {
         return m_name;
     }
+    coco::AnimationController& getAnimationController(){ return *m_animationController; }
+    coco::StateMachine& getStateMachine(){ return *m_stateMachine; }
+
     void addAnimation(std::string& name, std::vector<cabbage::Frame>& frames)
     {
-        m_animationController.addAnimation(name, frames);
+        m_animationController->addAnimation(name, frames);
     }
     void PlayAnimation(const std::string& animationName)
     {
-        m_animationController.PlayAnimation(animationName);
+        m_animationController->PlayAnimation(animationName);
     }
     void StopAnimation()
     {
-        m_animationController.StopAnimation();
+        m_animationController->StopAnimation();
     }
 
   private:
     void update(float deltaTime) override
     {
         // LOG(INFO) << "UPDATE";
-        if (currentState == CompanionState::SLEEPING)
-        {
-            if (shouldDisconnect)
-            {
-                m_animationController.animationEnd.disconnect<&Companion::onAnimationEnd>(this);
-            }
-            // LOG(INFO) << "SLEEPING";
-            std::optional<std::string> name = m_animationController.GetAnimation();
-            if (name != "sleeping")
-            {
-                m_animationController.PlayAnimation("sleeping");
-            }
-        }
-        else if (currentState == CompanionState::PEEKING)
-        {
-            // LOG(INFO) << "PEEKING";
-            if (m_animationController.GetAnimation() != "awake")
-            {
-                m_animationController.PlayAnimation("awake");
-                shouldDisconnect = false;
-            }
-        }
-        m_animationController.update(deltaTime);
+       // if (currentState == CompanionState::SLEEPING)
+       // {
+       //     if (shouldDisconnect)
+       //     {
+       //         m_animationController->animationEnd.disconnect<&Companion::onAnimationEnd>(this);
+       //     }
+       //     // LOG(INFO) << "SLEEPING";
+       //     std::optional<std::string> name = m_animationController->GetAnimation();
+       //     if (name != "sleeping")
+       //     {
+       //         m_animationController->PlayAnimation("sleeping");
+       //     }
+       // }
+       // else if (currentState == CompanionState::PEEKING)
+       // {
+       //     // LOG(INFO) << "PEEKING";
+       //     if (m_animationController->GetAnimation() != "awake")
+       //     {
+       //         m_animationController->PlayAnimation("awake");
+       //         shouldDisconnect = false;
+       //     }
+       // }
+        m_animationController->update(deltaTime);
+        m_stateMachine->Update(deltaTime);
     }
     void onAnimationEnd()
     {
@@ -89,10 +103,11 @@ class Companion : public CCObject
         }
     }
     cabbage::GraphicsManager* m_graphicsManager;
+    coco::StateMachine* m_stateMachine;
 
     std::unordered_map<std::string, cabbage::Animation> m_animations; // <animationName, animation>
-    //
-    coco::AnimationController m_animationController;
+    std::unique_ptr<coco::AnimationController> m_animationController;
+    //coco::AnimationController m_animationController;
 
     std::string    m_name;
     bool           shouldDisconnect = false;

@@ -2,6 +2,7 @@
 
 #include "sprite.h"
 #include <vector>
+#include <string>
 namespace cabbage
 {
 
